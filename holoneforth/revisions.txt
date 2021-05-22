@@ -1,0 +1,68 @@
+
+  0.0.1 
+
+
+
+
+
+EForth.fs imported
+
+
+  0.0.2 
+
+
+
+
+
+Use it.
+
+
+  0.0.3 Comments in text space 
+
+
+
+
+
+
+
+
+  0.0.4 Import eforth.fs 
+
+mark insert 1.0 text {Original eforth.fs imported as a unit into the code pane. 
+} 1.0 mark current 2.0 text {The chapter eforth.fs creates a source file containing all the unit codes
+} 2.0 text {now just one unit - thus reproduces eforth.fs
+} 3.0 text { } 4.0
+
+Original eforth.fs imported as a unit into the code pane. 
+The chapter eforth.fs creates a source file containing all the unit codes
+now just one unit - thus reproduces eforth.fs
+
+
+
+
+  0.0.5 
+
+
+
+
+
+
+
+
+  0.0.6 
+
+
+
+
+
+
+
+
+  0.0.7 Import Codewords 
+
+mark insert 1.0 mark current 1.0 text {Added the x86 Codewords from Dr. Ting Overview } 1.0
+
+Added the x86 Codewords from Dr. Ting Overview
+
+
+

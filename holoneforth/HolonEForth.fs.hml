@@ -1,0 +1,1157 @@
+<Chapter>
+<Name> HolonEForth.fs
+<Comment> mark tk::anchor1 1.0 mark insert 1.0 mark current 1.0 text {1.0 eForth Overview
+} 1.0 text {Before diving directly into eForth, I would like to discuss the general principles of Forth language. The language consists of a
+} 2.0 text {collection of words, which reside in the memory of a computer and can be executed by entering their names on the computer
+} 3.0 text {keyboard. A list of words can be compiled, given a new name and made a new word. In fact, most words in Forth are defined
+} 4.0 text {as lists of existing words. A small set of primitive words are defined in machine code of the native CPU. All other words are
+} 5.0 text {built from this primitive words and eventually refer to them when executed.
+} 6.0 text {Words are similar to procedures and subroutines in other languages. The difference is that Forth words are executable
+} 7.0 text {interactively when referenced by name, and they can be compiled into lists which can be referenced as new words.
+} 8.0 text {Programming in Forth is to define new and more powerful words as lists of existing words. This process continues until the
+} 9.0 text {final word becomes the solution to an application.
+} 10.0 text {Here I will state 'The Forth Law of Computing" without a proof:
+} 11.0 text {All computable functions can be constructed by defining new words as lists of words which include a small number of
+} 12.0 text {primitive words.
+} 13.0 text {This eForth model consists of about 200 words, of which only 31 are primitive words. Although it is very difficult to prove the
+} 14.0 text {above law, I will demonstrate it to you that from this small set of primitive words a complete operating system with many tools,
+} 15.0 text {that is the eForth model itself, can be built. If an operating system can be built this way, it is not difficult to understand that any
+} 16.0 text {application can be so developed.
+} 17.0 text {Forth is very similar to machine code. In a computer, the CPU has a finite set of machine instructions, and all computable
+} 18.0 text {functions are implemented as lists of these machine instructions. High level languages generally replace machine instruction
+} 19.0 text {lists by statements, functions, subroutines, and procedures, which can be used to construct procedures and subroutines at higher
+} 20.0 text {levels until the last procedure which is the application. This also helps demonstrating the validity of the above law.
+} 21.0 text {The primitive words must be constructed using native machine code of the host computer. They are also called low level
+} 22.0 text {words or code words. All other words are constructed as lists of existing words. They are called high level words or colon
+} 23.0 text {words because ":" (colon) is a Forth word which defines or constructs new words to replace lists of existing words.
+} 24.0 text {Forth as a computing system has two principal components: an user interface as the Forth language processor which interprets
+} 25.0 text {the commands entered from keyboard or equivalent devices; and a machine interface which interprets lists or words recursively
+} 26.0 text {until it can issue machine instructions in the primitive words to the host computer for execution. The user interface processes
+} 27.0 text {commands in text form. It is often referred to as the text interpreter and the outer interpreter.
+} 28.0 text {The machine interface executes words by processing recursively the word lists compiled in colon words to reach the primitive
+} 29.0 text {words which are handed to the host computer for execution. It is often called the inner interpreter and the address interpreter,
+} 30.0 text {because the word lists are often stored in the dictionary as address lists.
+} 31.0 text {
+} 32.0 text {1.1 Virtual Forth Computer
+} 33.0 text {Forth is a computer model which can be implemented on any real CPU with reasonable resources. This model is often called a
+} 34.0 text {virtual Forth computer. The minimal components of a virtual Forth computer are:
+} 35.0 text {1. A dictionary in memory to hold all the execution procedures.
+} 36.0 text {2. A return stack to hold return addresses of procedures yet to be executed.
+} 37.0 text {3. A data stack to hold parameters passing between procedures.
+} 38.0 text {4. A user area in RAM memory to hold all the system variables.
+} 39.0 text {5. A CPU to move date among stacks and memory, and to do ALU operations to parameters stored on the data stack.
+} 40.0 text {The eForth model is a detailed specification of a virtual Forth computer which can be implemented on many different CPU's
+} 41.0 text {and forces them to behave identically in executing an identical Forth instruction set. It was first implemneted on a PC using
+} 42.0 text {Intel 8086 CPU as a guiding model for other implementations. Here we will try to describe precisely the behavior of the virtual
+} 43.0 text {Forth computer. To describe precisely how this computer functions, we will use the 8086 machine code to clarify the
+} 44.0 text {specification.
+} 45.0 text {The following registers are required for a virtual Forth computer:
+} 46.0 text {Forth Register 8086 Register Function
+} 47.0 text {IP SI Interpreter Pointer
+} 48.0 text {SP SP Data Stack Pointer
+} 49.0 text {RP RP Return Stack Pointer
+} 50.0 text {WP AX Word or Work Pointer
+} 51.0 text {UP (in memory ) User Area Pointer
+} 52.0 text {In the dictionary, each procedure (or word in Forth terminology) occupies an area called code field, which contains executable
+} 53.0 text {machine code and data required by the code. There are two types of words used in eForth: code word whose code field contains
+} 54.0 text {only machine instructions, and colon word whose code field contains a call to the list processing subroutine and a list of word
+} 55.0 text {addresses. A word address is the code field address of the word in the dictionary. 4 bytes are allocated for the call to list
+} 56.0 text {processor. Word addresses are 2 bytes in length, and are pointers to code fields of words in the dictionary. The length of a code
+} 57.0 text {field varies depending upon the complexity of the word.
+} 58.0 text {In the code field of a code word there is a list of machine instructions of the native CPU. The machine instructions are
+} 59.0 text {terminated by a group of instructions, generally specified as a macro instruction named $NEXT. The function of $NEXT is to
+} 60.0 text {fetch the next word pointed to by the Interpreter Pointer IP, increment IP to point to the next word in the word list, and jump to
+} 61.0 text {the address just fetched. Since a word address points to a code field containing executable machine instructions, executing a
+} 62.0 text {word means jumping directly to the code field pointed to by the word address. $NEXT thus allows the virtual Forth computer
+} 63.0 text {to execute a list of words with very little CPU overhead. In the 8086 implementation, $NEXT is a macro assembling the
+} 64.0 text {following two machine instructions as shown below.
+} 65.0 text {In a colon word, the first four byte in the code field must be a subroutine call instruction to process the address list following
+} 66.0 text {this call instruction. This address list processing subroutine is named doLIST. doLIST pushes the contents in IP onto the return
+} 67.0 text {stack, copies the address of the first entry in its address list into IP and then calls $NEXT. $NEXT will then start executing this
+} 68.0 text {list of addresses in sequence.
+} 69.0 text {The last entry in the address list of a colon word must be EXIT. EXIT is a code word which undoes what doLIST
+} 70.0 text {accomplished. EXIT pops the top item on the return stack into the IP register. Consequently, IP points to the address following
+} 71.0 text {the colon word just executed. EXIT then invokes $NEXT which continues the processing of the word list, briefly interrupted
+} 72.0 text {by the last colon word in this word list.
+} 73.0 text {$NEXT MACRO
+} 74.0 text { LODSW \ load next word into WP (AX)
+} 75.0 text { JMP AX \ jump directly to the word thru WP
+} 76.0 text { ENDM \ IP (SI) now points to the next word
+} 77.0 text {doLIST ( a -- ) \ Run address list in a colon word.
+} 78.0 text {XCHG BP,SP \ exchange pointers
+} 79.0 text {PUSH SI \ push return stack
+} 80.0 text {XCHG BP,SP \ restore the pointers
+} 81.0 text {POP SI \ new list address
+} 82.0 text {$NEXT
+} 83.0 text {CODE EXIT \ Terminate a colon definition.
+} 84.0 text {XCHG BP,SP \ exchange pointers
+} 85.0 text {POP SI \ pop return stack } 86.0
+<Section>
+<Name> Variables and User Variables
+<Comment> mark insert 1.0 mark current 1.0 text {The term user variable was codified in earlier Forth systems on the mini-computers in which multitasking
+} 1.0 text {was an integral part of the Forth operating system. In a multitasking system, many user share CPU and
+} 2.0 text {other resources in the computing system. Each user has a private memory area to store essential
+} 3.0 text {information about its own task } 4.0 mark tk::anchor1 4.31 text {so that the system can leave a task temporarily to serve other users and
+} 4.31 text {return to this task continuing the unfinished work. In a single user environment, the user variables have
+} 5.0 text {the same functionality as system variables.
+} 6.0 text {In eForth, all variables used by the system are merged together and are implemented uniformly as user
+} 7.0 text {variables. A special memory area in the high memory is allocated for all these variables, and they are all
+} 8.0 text {initialized by copying a table of initial values stored in the cold boot area. A significant benefit of this
+} 9.0 text {scheme is that it allows the eForth system to operate in ROM memory naturally. It is very convenient for
+} 10.0 text {embedded system applications which preclude mass storage and file downloading.
+} 11.0 text {In an application, the user can choose to implement variables in the forms of user variables or regular
+} 12.0 text {variables when running in RAM memory. To run things in ROM, variables must be defined as user
+} 13.0 text {variables. Although eForth in the original model allows only a small number of user variable to be
+} 14.0 text {defined in an application, the user area can be enlarged at will by changing a few assembly constants and
+} 15.0 text {equates.
+} 16.0 text {In eForth only one vocabulary is used. The name of this vocabulary is FORTH. When FORTH is
+} 17.0 text {executed, the address of the pointer to the top of the dictionary is written into the first cell in the
+} 18.0 text {CONTEXT array. When the text interpreter searches the dictionary for a words, it picks up the pointer in
+} 19.0 text {CONTEXT and follow the thread through the name dictionary. If the name dictionary is exhausted, the
+} 20.0 text {text interpreter will pick up the next cell in the CONTEXT array and do the search. The first cell in
+} 21.0 text {CONTEXT array containing a 0 stops the searching. There are 8 cells in the CONTEXT array. Since the
+} 22.0 text {last cell must be zero, eForth allows up to 8 context vocabularies to be searched.
+} 23.0 text {There are two empty cells in the code field of FORTH. The first cell stores the pointer to the last name
+} 24.0 text {field in the name dictionary. The second field must be a 0, which serves to terminate a vocabulary link
+} 25.0 text {when many vocabularies are created. Vocabularies are useful in reducing the number of words the text
+} 26.0 text {interpreter must search to locate a word, and allowing related words to be grouped together as logic
+} 27.0 text {modules. Although the eForth itself only uses one vocabulary, the mechanism is provided to define
+} 28.0 text {multiple vocabularies in large applications.
+} 29.0 text {The CONTEXT arrays is designed as a vocabulary stack to implement the ONLY- ALSO concept of
+} 30.0 text {vocabulary search order first proposed by Bill Ragsdale in the Forth 83 Standard. 
+} 31.0 text {CURRENT points to a vocabulary thread to which new definitions are to be added. } 32.0
+<Unit>
+<Name> doVAR
+<Source> : doVAR ( -- a ) R> ;
+<Unit>
+<Name> UP
+<Comment> mark insert 1.0 mark current 1.0 text {Pointer to the user area. } 1.0
+<Source> VARIABLE UP ( -- a)
+<Unit>
+<Name> doUSER
+<Comment> mark tk::anchor2 1.0 mark insert 1.0 mark current 1.0 text {Run time routine for user variables. } 1.0
+<Source> : doUSER ( -- a )
+    R> @ \ retrieve user area offset
+    UP @ + ; \ add to user area base addr
+<Unit>
+<Name> doVOC
+<Source> : doVOC ( -- ) 
+	R> CONTEXT ! ;
+<Unit>
+<Name> FORTH
+<Source> : FORTH ( -- ) 
+	doVOC [ 0 , 0 ,
+<Unit>
+<Name> doUSER
+<Source> : doUSER ( -- a ) 
+	R> @ UP @ + ;
+<Section>
+<Name> User Variables
+<Comment> mark insert 1.0 text {eForth provides many functions in the vectored form to allow the behavior the these functions to be
+} 1.0 text {changed dynamically at run time. A vectored function stores a code address in a user variable.
+} 2.0 text {@EXECUTE is used to execute the function, given the address of the user variable. Following is the list
+} 3.0 text {of user variables defined in eForth: } 4.0
+<Unit>
+<Name> SP0
+<Comment> mark insert 1.0 mark current 1.0 text {Pointer to bottom of the data stack } 1.0
+<Source> SP0 ( -- a )
+<Unit>
+<Name> RP0
+<Comment> mark insert 1.0 mark current 1.0 text {Pointer to bottom of the return stack. } 1.0
+<Source> RP0 ( -- a )
+<Unit>
+<Name> '?KEY
+<Comment> mark tk::anchor2 1.0 mark insert 1.0 mark current 1.0 text {Execution vector of ?KEY. Default to ?rx. } 1.0
+<Source> '?KEY ( -- a )
+<Unit>
+<Name> 'EMIT
+<Comment> mark insert 1.0 mark current 1.0 text {Execution vector of EMIT. Default to0000 tx! } 1.0
+<Source> 'EMIT ( -- a )
+<Unit>
+<Name> 'EXPECT
+<Comment> mark insert 1.0 mark current 1.0 text {Execution vector of EXPECT. Default to 'accept'. } 1.0
+<Source> 'EXPECT ( -- a )
+<Unit>
+<Name> 'TAP
+<Comment> mark insert 1.0 mark current 1.0 text {Execution vector of TAP. Defulat the kTAP } 1.0
+<Source> 'TAP ( -- a )
+<Unit>
+<Name> 'ECHO
+<Comment> mark insert 1.0 mark current 1.0 text {Execution vector of ECHO. Default to tx! } 1.0
+<Source> 'ECHO ( -- a )
+<Unit>
+<Name> 'PROMPT
+<Comment> mark insert 1.0 mark current 1.0 text {Execution vector of PROMPT. Default to '.ok'. } 1.0
+<Source> 'PROMPT ( -- a )
+<Unit>
+<Name> BASE
+<Comment> mark insert 1.0 mark current 1.0 text {Radix base for numeric I/O. Default to 10. } 1.0
+<Source> BASE ( -- a )
+<Unit>
+<Name> tmp
+<Comment> mark insert 1.0 mark current 1.0 text {A temporary storage location used in parse and find. } 1.0
+<Source> tmp ( -- a )
+<Unit>
+<Name> SPAN
+<Comment> mark insert 1.0 mark current 1.0 text {Hold character count received by EXPECT. } 1.0
+<Source> SPAN ( -- a )
+<Unit>
+<Name> >IN
+<Comment> mark insert 1.0 mark current 1.0 text {Hold the character pointer while parsing input stream. } 1.0
+<Source> >IN ( -- a )
+<Unit>
+<Name> #TIB
+<Comment> mark insert 1.0 mark current 1.0 text {Hold the current count and address of the terminal input buffer.} 1.0 mark tk::anchor2 1.64 text {
+} 1.64 text {Terminal Input Buffer used one cell after #TIB. } 2.0
+<Source> #TIB ( -- a )
+<Unit>
+<Name> CSP
+<Comment> mark insert 1.0 mark current 1.0 text {Hold the stack pointer for error} 1.0 mark tk::anchor2 1.32 text { checking } 1.32
+<Source> CSP ( -- a )
+<Unit>
+<Name> 'EVAL
+<Comment> mark insert 1.0 mark current 1.0 text {Execution vector of EVAL. Default to EVAL.} 1.0 mark tk::anchor2 1.42 text { } 1.42
+<Source> 'EVAL ( -- a )
+<Unit>
+<Name> 'NUMBER
+<Comment> mark insert 1.0 mark current 1.0 text {Address of number conversion. Default to NUMBER?. } 1.0
+<Source> 'NUMBER ( -- a )
+<Unit>
+<Name> HLD
+<Comment> mark insert 1.0 mark current 1.0 text {Hold a pointer in building a numeric output string. } 1.0
+<Source> HLD ( -- a )
+<Unit>
+<Name> HANDLER
+<Comment> mark insert 1.0 mark current 1.0 text {Hold the return stack pointer for error handling. } 1.0
+<Source> HANDLER ( -- a )
+<Unit>
+<Name> CONTEXT
+<Comment> mark insert 1.0 mark current 1.0 text {Area to specify vocabulary search order. Default to FORTH.
+} 1.0 text {Vocabulary stack, 8 cells follwing CONTEXT. } 2.0
+<Source> CONTEXT ( -- a )
+<Unit>
+<Name> CURRENT
+<Comment> mark tk::anchor2 1.0 mark insert 1.0 mark current 1.0 text {Points to the vocabulary to be extended. Default to FORTH.
+} 1.0 text {Vocabulary link uses one cell after CURRENT. } 2.0
+<Source> CURRENT ( -- a )
+<Unit>
+<Name> CP
+<Comment> mark insert 1.0 mark current 1.0 text {Poinst to the top of the code dictionary. } 1.0
+<Source> CP ( -- a )
+<Unit>
+<Name> NP
+<Comment> mark insert 1.0 mark current 1.0 text Point 1.0 mark tk::anchor2 1.5 text {s to the bottom of the name dictionary. } 1.5
+<Source> NP ( -- a )
+<Unit>
+<Name> LAST
+<Comment> mark insert 1.0 mark current 1.0 text {Points to the last name in the name dictionary. } 1.0
+<Source> LAST ( -- a )
+<Section>
+<Name> Common Functions
+<Comment> mark insert 1.0 mark current 1.0 text {This group of Forth words are commonly used in writing Forth applications. They are coded in high level
+} 1.0 text {to enhance the portability of eForth. In most Forth implementations, they are coded in machine language
+} 2.0 text {to increase the execute speed. After an eForth system is ported to a new CPU, this word set should be
+} 3.0 text {recoded in assembly to improve the run time performance of the system.
+} 4.0 text {?DUP, ROT, 2DROP, and 2DUP are stack operators supplementing the four classic stack operators
+} 5.0 text { DUP, SWAP, OVER and DROP.
+} 6.0 text {ROT is unique in that it accesses the third item on the data stack. All other stack operators can only
+} 7.0 text {access one or two stack items. In Forth programming, it is generally accepted that one should not try to
+} 8.0 text {access stack items deeper than the third item. When you have to access deeper into the data stack, it is a
+} 9.0 text {good time to re-evaluate your algorithm. Most often, you can avoid this situation by factoring your code
+} 10.0 text {into smaller parts which do not reach so deep.
+} 11.0 text {+, - and D+ are simple extensions from the primitive word UM+. It is interesting to see how the more
+} 12.0 text {commonly used arithmetic operators are derived. + is UM+ with the carry discarded. NOT returns the
+} 13.0 text {ones compliment of a number, and NEGATE returns the two's compliment. Because UM+ preserves the
+} 14.0 text {carry, it can be used to form multiple precision operators like D+. Later we will see how UM+ is used to
+} 15.0 text {do multiplication and division. } 16.0
+<Unit>
+<Name> ?DUP
+<Source> : ?DUP ( w -- w w | 0 ) 
+	DUP IF DUP THEN ;
+<Unit>
+<Name> ROT
+<Source> : ROT ( w1 w2 w3 -- w2 w3 w1 ) 
+	>R SWAP R> SWAP ;
+<Unit>
+<Name> 2DROP
+<Source> : 2DROP ( w w -- ) 
+	DROP DROP ;
+<Unit>
+<Name> 2DUP
+<Source> : 2DUP ( w1 w2 -- w1 w2 w1 w2 ) 
+	OVER OVER ;
+<Unit>
+<Name> +
+<Source> : + ( w w -- w ) 
+	UM+ DROP ;
+<Unit>
+<Name> NOT
+<Source> : NOT ( w -- w ) 
+	-1 XOR ;
+<Unit>
+<Name> NEGATE
+<Source> : NEGATE ( n -- -n ) 
+	NOT 1 + ;
+<Unit>
+<Name> Unit
+<Unit>
+<Name> DNEGATE
+<Source> : DNEGATE ( d -- -d ) 
+	NOT >R NOT 1 UM+ R> + ;
+<Unit>
+<Name> D+
+<Source> : D+ ( d d -- d ) 
+	>R SWAP >R UM+ R> R> + + ;
+<Unit>
+<Name> -
+<Source> : - ( w w -- w ) 
+	NEGATE + ;
+<Unit>
+<Name> ABS
+<Source> : ABS ( n -- +n ) 
+	DUP 0< IF NEGATE THEN ;
+<Section>
+<Name> Comparison
+<Comment> mark insert 1.0 text {The primitive comparison word in eForth is ?branch and 0<. However, ?branch is at such a low level that
+} 1.0 text {it can not be readily used in high level Forth code. ?branch is secretly compiled into the high level Forth
+} 2.0 text {words by IF as an address literal. For all intentions and purposes, we can consider IF the equivalent of
+} 3.0 text {?branch. When IF is encountered, the top item on the data stack is considered a logic flag. If it is true
+} 4.0 text {(non-zero), the execution continues until ELSE, then jump to THEN, or to THEN directly if there is no
+} 5.0 text {ELSE clause.
+} 6.0 text {The following logic words are constructed using the IF...ELSE...THEN structure with 0< and XOR. XOR
+} 7.0 text {is used as 'not equal' operator, because if the top two items on the data stack are not equal, the XOR
+} 8.0 text {operator will return a non-zero number, which is considered to be 'true'.
+} 9.0 text {U< is used to compared two unsigned numbers. This operator is very important, especially in comparing
+} 10.0 text {addresses, as we assume that the addresses are unsigned numbers pointing to unique memory locations.
+} 11.0 text {The arithmetic comparison operator < cannot be used to determine whether one address is higher or lower
+} 12.0 text {than the other. Using < for address comparison had been the single cause of many failures in the annals of} 13.0 mark current 13.106 text {
+} 13.106 text {Forth.
+} 14.0 text {MAX retains the larger of the top two items on the data stack. Both numbers are assumed to be signed
+} 15.0 text {integers.
+} 16.0 text {MIN retains the smaller of the top two items on the data stack. Both numbers are assumed to be signed
+} 17.0 text {integers.
+} 18.0 text {WITHIN checks whether the third item on the data stack is within the range as specified by the top two
+} 19.0 text {numbers on the data stack. The range is inclusive as to the lower limit and exclusive to the upper limit. If
+} 20.0 text {the third item is within range, a true flag is returned on the data stack. Otherwise, a false flag is returned.
+} 21.0 text {All numbers are assumed to be unsigned integers. } 22.0
+<Unit>
+<Name> =
+<Source> : = ( w w -- t ) 
+	XOR IF 0 EXIT THEN -1 ;
+<Unit>
+<Name> U<
+<Source> : U< ( u u -- t ) 
+	2DUP XOR 0< IF SWAP DROP 0< EXIT THEN - 0< ;
+<Unit>
+<Name> <
+<Source> : < ( n n -- t ) 
+	2DUP XOR 0< IF DROP 0< EXIT THEN - 0< ;
+<Unit>
+<Name> MAX
+<Source> : MAX ( n n -- n ) 
+	2DUP < IF SWAP THEN DROP ;
+<Unit>
+<Name> MIN
+<Source> : MIN ( n n -- n ) 
+	2DUP SWAP < IF SWAP THEN ROP ;
+<Unit>
+<Name> WITHIN
+<Comment> mark insert 1.0 mark current 1.0 text {ul <= u < uh } 1.0
+<Source> : WITHIN ( u ul uh -- t ) 
+         OVER - >R - R> U< ;
+<Section>
+<Name> Divide
+<Unit>
+<Name> UM/MOD
+<Source> : UM/MOD ( ud u -- ur uq )
+    2DUP U<
+    IF NEGATE 15
+        FOR >R DUP UM+ >R >R DUP UM+ R> + DUP
+            R> R@ SWAP >R UM+ R> OR
+            IF >R DROP 1 + R> ELSE DROP THEN R>
+        NEXT DROP SWAP EXIT
+    THEN DROP 2DROP -1 DUP ;
+<Unit>
+<Name> M/MOD
+<Comment> mark insert 1.0 mark current 1.0 text {floored division } 1.0
+<Source> : M/MOD ( d n -- r q )
+    DUP 0< DUP >R
+    IF NEGATE >R DNEGATE R>
+    THEN >R DUP 0< IF R@ + THEN R> UM/MOD R>
+    IF SWAP NEGATE SWAP THEN ;
+<Unit>
+<Name> /MOD
+<Source> : /MOD ( n n -- r q ) 
+	OVER 0< SWAP M/MOD ;
+<Unit>
+<Name> MOD
+<Source> : MOD ( n n -- r ) 
+	/MOD DROP ;
+<Unit>
+<Name> /
+<Source> : / ( n n -- q ) 
+	/MOD SWAP DROP ;
+<Section>
+<Name> Multiply
+<Unit>
+<Name> UM*
+<Source> : UM* ( u u -- ud )
+    0 SWAP ( u1 0 u2 ) 15
+    FOR DUP UM+ >R >R DUP UM+ R> + R>
+        IF >R OVER UM+ R> + THEN
+    NEXT ROT DROP ;
+<Unit>
+<Name> *
+<Source> : * ( n n -- n ) 
+	UM* DROP ;
+<Unit>
+<Name> M*
+<Source> : M* ( n n -- d )
+    2DUP XOR 0< >R ABS SWAP ABS UM* R> IF DNEGATE THEN ;
+<Unit>
+<Name> */MOD
+<Source> : */MOD ( n n n -- r q ) 
+	>R M* R> M/MOD ;
+<Unit>
+<Name> */
+<Source> : */ ( n n n -- q ) 
+	*/MOD SWAP DROP ;
+<Section>
+<Name> Memory Alignment
+<Unit>
+<Name> CELL-
+<Source> : CELL- ( a -- a ) -2 + ;
+<Unit>
+<Name> CELL+
+<Source> : CELL+ ( a -- a ) 2 + ;
+<Unit>
+<Name> CELLS
+<Source> : CELLS ( n -- n ) 2 * ;
+<Unit>
+<Name> ALIGNED
+<Source> : ALIGNED ( b -- a )
+    DUP 0 2 UM/MOD DROP DUP
+    IF 2 SWAP - THEN + ;
+<Unit>
+<Name> BL
+<Source> : BL ( -- 32 ) 32 ;
+<Unit>
+<Name> >CHAR
+<Source> : >CHAR ( c -- c )
+    $7F AND DUP 127 BL WITHIN IF DROP 95 THEN ;
+<Unit>
+<Name> DEPTH
+<Source> : DEPTH ( -- n ) 
+	SP@ SP0 @ SWAP - 2 / ;
+<Unit>
+<Name> PICK
+<Source> : PICK ( +n -- w ) 
+	1 + CELLS SP@ + @ ;
+<Section>
+<Name> Memory Access
+<Unit>
+<Name> +!
+<Source> : +! ( n a -- ) 
+	SWAP OVER @ + SWAP ! ;
+<Unit>
+<Name> 2!
+<Source> : 2! ( d a -- ) 
+	SWAP OVER ! CELL+ ! ;
+<Unit>
+<Name> 2@
+<Source> : 2@ ( a -- d ) 
+	DUP CELL+ @ SWAP @ ;
+<Unit>
+<Name> COUNT
+<Source> : COUNT ( b -- b +n ) 
+	DUP 1 + SWAP C@ ;
+<Unit>
+<Name> HERE
+<Source> : HERE ( -- a ) 
+	CP @ ;
+<Unit>
+<Name> PAD
+<Source> : PAD ( -- a ) 
+	HERE 80 + ;
+<Unit>
+<Name> TIB
+<Source> : TIB ( -- a ) 
+	#TIB CELL+ @ ;
+<Unit>
+<Name> @EXECUTE
+<Source> : @EXECUTE ( a -- ) 
+	@ ?DUP IF EXECUTE THEN ;
+<Unit>
+<Name> CMOVE
+<Source> : CMOVE ( b b u -- )
+    FOR AFT >R DUP C@ R@ C! 1 + R> 1 + THEN NEXT 2DROP ;
+<Unit>
+<Name> FILL
+<Source> : FILL ( b u c -- )
+    SWAP FOR SWAP AFT 2DUP C! 1 + THEN NEXT 2DROP ;
+<Unit>
+<Name> -TRAILING
+<Source> : -TRAILING ( b u -- b u )
+    FOR AFT BL OVER R@ + C@ <
+        IF R> 1 + EXIT THEN THEN
+    NEXT 0 ;
+<Unit>
+<Name> PACK$
+<Comment> mark insert 1.0 mark current 1.0 text {null fill } 1.0
+<Source> : PACK$ ( b u a -- a ) 
+    ALIGNED DUP >R OVER
+    DUP 0 2 UM/MOD DROP
+    - OVER + 0 SWAP ! 2DUP C! 1 + SWAP CMOVE R> ;
+<Section>
+<Name> Numeric Output
+<Unit>
+<Name> DIGIT
+<Source> : DIGIT ( u -- c ) 
+	9 OVER < 7 AND + 48 + ;
+<Unit>
+<Name> EXTRACT
+<Source> : EXTRACT ( n base -- n c ) 
+	0 SWAP UM/MOD SWAP DIGIT ;
+<Unit>
+<Name> <#
+<Source> : <# ( -- ) 
+	PAD HLD ! ;
+<Unit>
+<Name> HOLD
+<Source> : HOLD ( c -- ) 
+	HLD @ 1 - DUP HLD ! C! ;
+<Unit>
+<Name> #
+<Source> : # ( u -- u ) 
+	BASE @ EXTRACT HOLD ;
+<Unit>
+<Name> #S
+<Source> : #S ( u -- 0 ) 
+	BEGIN # DUP WHILE REPEAT ;
+<Unit>
+<Name> SIGN
+<Source> : SIGN ( n -- ) 
+	0< IF 45 HOLD THEN ;
+<Unit>
+<Name> #>
+<Source> : #> ( w -- b u ) 
+	DROP HLD @ PAD OVER - ;
+<Unit>
+<Name> str
+<Source> : str ( n -- b u ) 
+	DUP >R ABS <# #S R> SIGN #> ;
+<Unit>
+<Name> HEX
+<Source> : HEX ( -- ) 
+	16 BASE ! ;
+<Unit>
+<Name> DECIMAL
+<Source> : DECIMAL ( -- ) 
+	10 BASE ! ;
+<Section>
+<Name> Number Input
+<Unit>
+<Name> DIGIT?
+<Source> : DIGIT? ( c base -- u t )
+    >R 48 - 9 OVER <
+    IF 7 - DUP 10 < OR THEN DUP R> U< ;
+<Unit>
+<Name> NUMBER?
+<Source> : NUMBER? ( a -- n T | a F )
+    BASE @ >R 0 OVER COUNT ( a 0 b n)
+    OVER C@ 36 =
+    IF HEX SWAP 1 + SWAP 1 - THEN ( a 0 b' n')
+        OVER C@ 45 = >R ( a 0 b n)
+        SWAP R@ - SWAP R@ + ( a 0 b" n") ?DUP
+        IF 1 - ( a 0 b n)
+            FOR DUP >R C@ BASE @ DIGIT?
+            WHILE SWAP BASE @ * + R> 1 +
+            NEXT DROP R@ ( b ?sign) IF NEGATE THEN SWAP
+        ELSE R> R> ( b index) 2DROP ( digit number) 2DROP 0
+        THEN DUP
+    THEN R> ( n ?sign) 2DROP R> BASE ! ;
+<Section>
+<Name> Basic I/O
+<Unit>
+<Name> ?KEY
+<Source> : ?KEY ( -- c T | F )
+	'?KEY @EXECUTE ;
+<Unit>
+<Name> KEY
+<Source> : KEY ( -- c ) 
+	BEGIN ?KEY UNTIL ;
+<Unit>
+<Name> EMIT
+<Source> : EMIT ( c -- ) 
+	'EMIT @EXECUTE ;
+<Unit>
+<Name> NUF?
+<Source> : NUF? ( -- f ) 
+	?KEY DUP IF 2DROP KEY 13 = THEN ;
+<Unit>
+<Name> PACE
+<Source> : PACE ( -- ) 
+	11 EMIT ;
+<Unit>
+<Name> SPACE
+<Source> : SPACE ( -- ) 
+	BL EMIT ;
+<Unit>
+<Name> CHARS
+<Comment> mark insert 1.0 mark current 1.0 text {???ANS conflict } 1.0
+<Source> : CHARS ( +n c -- ) 
+    	SWAP 0 MAX FOR AFT DUP EMIT THEN NEXT DROP ;
+<Unit>
+<Name> SPACES
+<Source> : SPACES ( +n -- ) 
+	BL CHARS ;
+<Unit>
+<Name> TYPE
+<Source> : TYPE ( b u -- ) 
+	FOR AFT DUP C@ EMIT 1 + THEN NEXT DROP ;
+<Unit>
+<Name> CR
+<Source> : CR ( -- ) 
+	13 EMIT 10 EMIT ;
+<Unit>
+<Name> do$
+<Source> : do$ ( -- a )
+    R> R@ R> COUNT + ALIGNED >R SWAP >R ;
+<Unit>
+<Name> $"|
+<Source> : $"| ( -- a ) 
+	do$ ;
+<Unit>
+<Name> ."|
+<Source> : ."| ( -- ) 
+	do$ COUNT TYPE ; COMPILE-ONLY
+<Unit>
+<Name> .R
+<Source> : .R ( n +n -- ) 
+	>R str R> OVER - SPACES TYPE ;
+<Unit>
+<Name> U.R
+<Source> : U.R ( u +n -- ) 
+	>R <# #S #> R> OVER - SPACES TYPE ;
+<Unit>
+<Name> U.
+<Source> : U. ( u -- ) 
+	<# #S #> SPACE TYPE ;
+<Unit>
+<Name> .
+<Source> : . ( n -- ) 
+	BASE @ 10 XOR IF U. EXIT THEN str SPACE TYPE ;
+<Unit>
+<Name> ?
+<Source> : ? ( a -- ) 
+	@ . ;
+<Section>
+<Name> Parsing
+<Unit>
+<Name> parse
+<Source> : parse ( b u c -- b u delta ; <string> )
+    tmp ! OVER >R DUP \ b u u
+    IF 1 - tmp @ BL =
+        IF \ b u' \ 'skip'
+            FOR BL OVER C@ - 0< NOT WHILE 1 +
+            NEXT ( b) R> DROP 0 DUP EXIT \ all delim
+            THEN R>
+        THEN OVER SWAP \ b' b' u' \ 'scan'
+        FOR tmp @ OVER C@ - tmp @ BL =
+           IF 0< THEN WHILE 1 +
+           NEXT DUP >R ELSE R> DROP DUP 1 + >R
+        THEN OVER - R> R> - EXIT
+    THEN ( b u) OVER R> - ;
+<Unit>
+<Name> PARSE
+<Source> : PARSE ( c -- b u ; <string> )
+    >R TIB >IN @ + #TIB @ >IN @ - R> parse >IN +! ;
+<Unit>
+<Name> .(
+<Source> : .( ( -- ) 
+	41 PARSE TYPE ; IMMEDIATE
+<Unit>
+<Name> (
+<Source> : ( ( -- ) 
+	41 PARSE 2DROP ; IMMEDIATE
+<Unit>
+<Name> \
+<Source> : \ ( -- ) 
+	#TIB @ >IN ! ; IMMEDIATE
+<Unit>
+<Name> CHAR
+<Source> : CHAR ( -- c )
+	BL PARSE DROP C@ ;
+<Unit>
+<Name> TOKEN
+<Source> : TOKEN ( -- a ; <string> )
+    BL PARSE 31 MIN NP @ OVER - CELL- PACK$ ;
+<Unit>
+<Name> WORD
+<Source> : WORD ( c -- a ; <string> ) 
+	PARSE HERE PACK$ ;
+<Section>
+<Name> Dictionary Search
+<Unit>
+<Name> NAME>
+<Source> : NAME> ( a -- xt ) 
+	CELL- CELL- @ ;
+<Unit>
+<Name> SAME?
+<Source> : SAME? ( a a u -- a a f \ -0+ )
+    FOR AFT OVER R@ CELLS + @
+      OVER R@ CELLS + @ - ?DUP
+      IF R> DROP EXIT THEN THEN
+    NEXT 0 ;
+<Unit>
+<Name> find
+<Source> : find ( a va -- xt na | a F )
+    SWAP \ va a
+    DUP C@ 2 / tmp ! \ va a \ get cell count
+    DUP @ >R \ va a \ count byte & 1st char
+    CELL+ SWAP \ a' va
+    BEGIN @ DUP \ a' na na
+        IF DUP @ [ =MASK ] LITERAL AND R@ XOR \ ignore lexicon bits
+        IF CELL+ -1 ELSE CELL+ tmp @ SAME? THEN
+        ELSE R> DROP EXIT
+        THEN
+    WHILE CELL- CELL- \ a' la
+    REPEAT R> DROP SWAP DROP CELL- DUP NAME> SWAP ;
+<Unit>
+<Name> NAME?
+<Source> : NAME? ( a -- xt na | a F )
+    CONTEXT DUP 2@ XOR IF CELL- THEN >R \ context<>also
+    BEGIN R> CELL+ DUP >R @ ?DUP
+    WHILE find ?DUP
+    UNTIL R> DROP EXIT THEN R> DROP 0 ;
+<Section>
+<Name> Terminal
+<Unit>
+<Name> ^H
+<Comment> mark tk::anchor4 1.0 mark insert 1.0 mark current 1.0 text {backspace } 1.0
+<Source> : ^H ( b b b -- b b b ) 
+    >R OVER R> SWAP OVER XOR
+    IF 8 'ECHO @EXECUTE
+        32 'ECHO @EXECUTE \ distructive
+        8 'ECHO @EXECUTE \ backspace
+    THEN ;
+<Unit>
+<Name> TAP
+<Source> : TAP ( bot eot cur c -- bot eot cur )
+    DUP 'ECHO @EXECUTE OVER C! 1 + ;
+<Unit>
+<Name> kTAP
+<Source> : kTAP ( bot eot cur c -- bot eot cur )
+    DUP 13 XOR
+    IF 8 XOR IF BL TAP ELSE ^H THEN EXIT
+    THEN DROP SWAP DROP DUP ;
+<Unit>
+<Name> accept
+<Source> : accept ( b u -- b u )
+    OVER + OVER
+    BEGIN 2DUP XOR
+    WHILE KEY DUP BL - 95 U<
+       IF TAP ELSE 'TAP @EXECUTE THEN
+    REPEAT DROP OVER - ;
+<Unit>
+<Name> EXPECT
+<Source> : EXPECT ( b u -- ) 
+	'EXPECT @EXECUTE SPAN ! DROP ;
+<Unit>
+<Name> QUERY
+<Source> : QUERY ( -- )
+    TIB 80 'EXPECT @EXECUTE #TIB ! DROP 0 >IN ! ;
+<Section>
+<Name> Error Handling
+<Comment> mark insert 1.0 mark current 1.0 text {
+} 1.0 text { } 2.0
+<Unit>
+<Name> CATCH
+<Source> : CATCH ( ca -- err#/0 )
+    ( Execute word at ca and set up an error frame for it.)
+    SP@ >R ( save current stack pointer on return stack )
+    HANDLER @ >R ( save the handler pointer on return stack )
+    RP@ HANDLER ! ( save the handler frame pointer in HANDLER )
+    ( ca ) EXECUTE ( execute the assigned word over this safety net )
+    R> HANDLER ! ( normal return from the executed word )
+    ( restore HANDLER from the return stack )
+    R> DROP ( discard the saved data stack pointer )
+    0 ; ( push a no-error flag on data stack )
+<Unit>
+<Name> THROW
+<Source> : THROW ( err# -- err# )
+    ( Reset system to current local error frame an update error flag.)
+    HANDLER @ RP! ( expose latest error handler frame on return stack)
+    R> HANDLER ! ( restore previously saved error handler frame )
+    R> SWAP >R ( retrieve the data stack pointer saved )
+    SP! ( restore the data stack )
+    DROP
+    R> ; ( retrived err# )
+<Unit>
+<Name> ErrorTest
+<Source> CREATE NULL$ 0 , $," coyote"
+: ABORT ( -- ) NULL$ THROW ;
+: abort" ( f -- ) IF do$ THROW THEN do$ DROP ;
+<Section>
+<Name> Text Interpreter
+<Unit>
+<Name> $INTERPRET
+<Source> : $INTERPRET ( a -- )
+    NAME? ?DUP
+    IF @ $40 AND
+        ABORT" compile ONLY" EXECUTE EXIT
+    THEN 'NUMBER @EXECUTE IF EXIT THEN THROW ;
+<Unit>
+<Name> [
+<Source> : [ ( -- ) 
+	doLIT $INTERPRET 'EVAL ! ; IMMEDIATE
+<Unit>
+<Name> .OK
+<Source> : .OK ( -- ) 
+	doLIT $INTERPRET 'EVAL @ = IF ." ok" THEN CR ;
+<Unit>
+<Name> ?STACK
+<Source> : ?STACK ( -- ) 
+	DEPTH 0< ABORT" underflow" ;
+<Unit>
+<Name> EVAL
+<Source> : EVAL ( -- )
+    BEGIN TOKEN DUP C@
+    WHILE 'EVAL @EXECUTE ?STACK
+    REPEAT DROP 'PROMPT @EXECUTE ;
+<Section>
+<Name> Shell
+<Unit>
+<Name> PRESET
+<Source> : PRESET ( -- ) 
+	SP0 @ SP! TIB #TIB CELL+ ! ;
+<Unit>
+<Name> xio
+<Comment> mark tk::anchor2 1.0 mark insert 1.0 mark current 1.0 text {Reset 'EXPECT 'TAP 'ECHO 'PROMPT } 1.0
+<Source> : xio ( a a a -- ) 
+    doLIT accept 'EXPECT 2! 'ECHO 2! ; COMPILE-ONLY
+<Unit>
+<Name> FILE
+<Source> : FILE ( -- )
+    doLIT PACE doLIT DROP doLIT kTAP xio ;
+<Unit>
+<Name> HAND
+<Source> : HAND ( -- )
+    doLIT .OK doLIT EMIT [ kTAP xio ;
+    CREATE I/O ' ?RX , ' TX! , \ defaults
+<Unit>
+<Name> CONSOLE
+<Comment> mark tk::anchor2 1.0 mark insert 1.0 mark current 1.0 text {
+} 1.0 text { } 2.0
+<Source> : CONSOLE ( -- ) 
+	I/O 2@ '?KEY 2! HAND ;
+<Unit>
+<Name> QUIT
+<Source> : QUIT ( -- )
+    RP0 @ RP!
+    BEGIN [COMPILE] [
+        BEGIN QUERY doLIT EVAL CATCH ?DUP
+        UNTIL 'PROMPT @ SWAP CONSOLE NULL$ OVER XOR
+        IF CR #TIB 2@ TYPE
+            CR >IN @ 94 CHARS
+            CR COUNT TYPE ." ? "
+        THEN doLIT .OK XOR
+        IF $1B EMIT THEN
+        PRESET
+    AGAIN ;
+<Section>
+<Name> Interpreter and Compiler
+<Unit>
+<Name> [
+<Source> : [ ( -- )
+    [ ' $INTERPRET ] LITERAL
+    'EVAL ! ( vector EVAL to $INTERPRET )
+    ; IMMEDIATE ( enter into text interpreter mode )
+<Unit>
+<Name> ]
+<Source> : ] ( -- )
+    [ ' $COMPILE ] LITERAL
+    'EVAL ! ( vector EVAL to $COMPILE )
+;
+<Section>
+<Name> Primitive Compiler Words
+<Unit>
+<Name> '
+<Source> : ' ( -- xt ) 
+	TOKEN NAME? IF EXIT THEN THROW ;
+<Unit>
+<Name> ALLOT
+<Source> : ALLOT ( n -- ) 
+	CP +! ;
+<Unit>
+<Name> ,
+<Source> : , ( w -- ) 
+	HERE DUP CELL+ CP ! ! ; \ ???ALIGNED
+<Unit>
+<Name> [COMPILE]
+<Comment> mark insert 1.0 mark current 1.0 text {
+} 1.0 text { } 2.0
+<Source> : [COMPILE] ( -- ; <string> ) ' , ; IMMEDIATE
+<Unit>
+<Name> COMPILE
+<Source> : COMPILE ( -- )
+	R> DUP @ , CELL+ >R ;
+<Unit>
+<Name> LITERAL
+<Source> : LITERAL ( w -- ) 
+	COMPILE doLIT , ; IMMEDIATE
+<Unit>
+<Name> $,"
+<Source> : $," ( -- ) 
+	34 WORD COUNT ALIGNED CP ! ;
+<Unit>
+<Name> RECURSE
+<Source> : RECURSE ( -- ) 
+	LAST @ NAME> , ; IMMEDIATE
+<Section>
+<Name> Structures
+<Unit>
+<Name> <MARK
+<Source> : <MARK ( -- a ) 
+	HERE ;
+<Unit>
+<Name> <RESOLVE
+<Source> : <RESOLVE ( a -- ) 
+	, ;
+<Unit>
+<Name> >MARK
+<Source> : >MARK ( -- A ) 
+	HERE 0 , ;
+<Unit>
+<Name> >RESOLVE
+<Source> : >RESOLVE ( A -- ) 
+	<MARK SWAP ! ;
+<Unit>
+<Name> FOR
+<Source> : FOR ( -- a ) 
+	COMPILE >R <MARK ; IMMEDIATE
+<Unit>
+<Name> BEGIN
+<Source> : BEGIN ( -- a ) 
+	<MARK ; IMMEDIATE
+<Unit>
+<Name> NEXT
+<Source> : NEXT ( a -- ) 
+	COMPILE next <RESOLVE ; IMMEDIATE
+<Unit>
+<Name> UNTIL
+<Source> : UNTIL ( a -- ) 
+	COMPILE ?branch <RESOLVE ; IMMEDIATE
+<Unit>
+<Name> AGAIN
+<Source> : AGAIN ( a -- ) 
+	COMPILE branch <RESOLVE ; IMMEDIATE
+<Unit>
+<Name> IF
+<Source> : IF ( -- A ) 
+	COMPILE ?branch >MARK ; IMMEDIATE
+<Unit>
+<Name> AHEAD
+<Source> : AHEAD ( -- A ) 
+	COMPILE branch >MARK ; IMMEDIATE
+<Unit>
+<Name> REPEAT
+<Source> : REPEAT ( A a -- ) 
+	[COMPILE] AGAIN >RESOLVE ; IMMEDIATE
+<Unit>
+<Name> THEN
+<Source> : THEN ( A -- ) 
+	>RESOLVE ; IMMEDIATE
+<Unit>
+<Name> AFT
+<Source> : AFT ( a -- a A ) 
+	DROP [COMPILE] AHEAD [COMPILE] BEGIN SWAP ; IMMEDIATE
+<Unit>
+<Name> ELSE
+<Source> : ELSE ( A -- A ) 
+	[COMPILE] AHEAD SWAP [COMPILE] THEN ; IMMEDIATE
+<Unit>
+<Name> WHEN
+<Source> : WHEN ( a A -- a A a ) 
+	[COMPILE] IF OVER ; IMMEDIATE
+<Unit>
+<Name> WHILE
+<Source> : WHILE ( a -- A a ) 
+	[COMPILE] IF SWAP ; IMMEDIATE
+<Unit>
+<Name> ABORT"
+<Source> : ABORT" ( -- ; <string> ) 
+	COMPILE abort" $," ; IMMEDIATE
+<Unit>
+<Name> $"
+<Source> : $" ( -- ; <string> ) 
+	COMPILE $"| $," ; IMMEDIATE
+<Unit>
+<Name> ."
+<Source> : ." ( -- ; <string> ) 
+	COMPILE ."| $," ; IMMEDIATE
+<Section>
+<Name> Compiler
+<Unit>
+<Name> ?UNIQUE
+<Source> : ?UNIQUE ( a -- a ) 
+	DUP NAME? IF ." reDef " OVER COUNT TYPE THEN DROP ;
+<Unit>
+<Name> $,n
+<Source> : $,n ( a -- )
+    DUP C@
+    IF ?UNIQUE
+        ( na) DUP LAST ! \ for OVERT
+        ( na) HERE ALIGNED SWAP
+        ( cp na) CELL-
+        ( cp la) CURRENT @ @
+        ( cp la na') OVER !
+        ( cp la) CELL- DUP NP ! ( ptr) ! EXIT
+    THEN $" name" THROW ;
+<Unit>
+<Name> .( FORTH Compiler )
+<Source> .( FORTH Compiler )
+<Unit>
+<Name> $COMPILE
+<Source> : $COMPILE ( a -- )
+    NAME? ?DUP
+    IF @ $80 AND
+        IF EXECUTE ELSE , THEN EXIT
+    THEN 'NUMBER @EXECUTE
+    IF [COMPILE] LITERAL EXIT
+    THEN THROW ;
+<Unit>
+<Name> OVERT
+<Source> : OVERT ( -- ) 
+	LAST @ CURRENT @ ! ;
+<Unit>
+<Name> ;
+<Source> : ; ( -- )
+    COMPILE EXIT [COMPILE] [ OVERT ; IMMEDIATE
+<Unit>
+<Name> ]
+<Source> : ] ( -- ) 
+	doLIT $COMPILE 'EVAL ! ;
+<Unit>
+<Name> call
+<Comment> mark insert 1.0 mark current 1.0 mark tk::anchor2 1.0 text {DTC 8086 relative call } 1.0
+<Source> : call, ( xt -- ) 
+    $E890 , HERE CELL+ - , ;
+<Unit>
+<Name> :
+<Source> : : ( -- ; <string> ) 
+	TOKEN $,n doLIT doLIST call, ] ;
+<Unit>
+<Name> IMMEDIATE
+<Source> : IMMEDIATE ( -- ) 
+	$80 LAST @ @ OR LAST @ ! ;
+<Section>
+<Name> Defining Words
+<Unit>
+<Name> USER
+<Source> : USER ( n -- ; <string> )
+    TOKEN $,n OVERT
+    doLIT doLIST COMPILE doUSER , ;
+<Unit>
+<Name> CREATE
+<Source> : CREATE ( -- ; <string> )
+    TOKEN $,n OVERT
+    doLIT doLIST COMPILE doVAR ;
+<Unit>
+<Name> VARIABLE
+<Source> : VARIABLE ( -- ; <string> ) 
+	CREATE 0 , ;
+<Section>
+<Name> Memory Dump
+<Unit>
+<Name> _TYPE
+<Source> : _TYPE ( b u -- )
+    FOR AFT DUP C@ >CHAR EMIT 1 + THEN NEXT DROP ;
+<Unit>
+<Name> dm+
+<Source> : dm+ ( b u -- b )
+    OVER 4 U.R SPACE FOR AFT DUP C@ 3 U.R 1 + THEN NEXT ;
+<Unit>
+<Name> DUMP
+<Source> : DUMP ( b u -- )
+    BASE @ >R HEX 16 /
+    FOR CR 16 2DUP dm+ ROT ROT 2 SPACES _TYPE NUF? NOT WHILE
+    NEXT ELSE R> DROP THEN DROP R> BASE ! ;
+<Section>
+<Name> Stack Tools
+<Comment> mark insert 1.0 mark current 1.0 text {
+} 1.0 text { } 2.0
+<Unit>
+<Name> .S
+<Source> : .S ( -- ) 
+	CR DEPTH FOR AFT R@ PICK . THEN NEXT ." <sp" ;
+<Unit>
+<Name> .BASE
+<Source> : .BASE ( -- ) 
+	BASE @ DECIMAL DUP . BASE ! ;
+<Unit>
+<Name> .FREE
+<Source> : .FREE ( -- ) 
+	CP 2@ - U. ;
+<Unit>
+<Name> !CSP
+<Source> : !CSP ( -- ) 
+	SP@ CSP ! ;
+<Unit>
+<Name> ?CSP
+<Source> : ?CSP ( -- ) 
+	SP@ CSP @ XOR ABORT" stack depth" ;
+<Section>
+<Name> Dictionary Dump
+<Unit>
+<Name> >NAME
+<Source> : >NAME ( xt -- na | F )
+    CURRENT
+    BEGIN CELL+ @ ?DUP WHILE 2DUP
+        BEGIN @ DUP WHILE 2DUP NAME> XOR
+        WHILE CELL-
+        REPEAT THEN SWAP DROP ?DUP
+    UNTIL SWAP DROP SWAP DROP EXIT THEN DROP 0 ;
+<Unit>
+<Name> .ID
+<Source> : .ID ( a -- )
+    ?DUP IF COUNT $01F AND _TYPE EXIT THEN ." {noName}" ;
+<Unit>
+<Name> SEE
+<Source> : SEE ( -- ; <string> )
+    ' CR CELL+
+    BEGIN CELL+ DUP @ DUP IF >NAME THEN ?DUP
+        IF SPACE .ID ELSE DUP @ U. THEN NUF?
+    UNTIL DROP ;
+<Unit>
+<Name> WORDS
+<Source> : WORDS ( -- )
+    CR CONTEXT @
+    BEGIN @ ?DUP
+    WHILE DUP SPACE .ID CELL- NUF?
+    UNTIL DROP THEN ;
+<Section>
+<Name> Startup
+<Unit>
+<Name> VER
+<Source> : VER ( -- u ) $101 ;
+<Unit>
+<Name> hi
+<Source> : hi ( -- )
+    !IO BASE @ HEX \ initialize IO device & sign on
+    CR ." eFORTH V" VER <# # # 46 HOLD # #> TYPE
+    CR ;
+<Unit>
+<Name> EMPTY
+<Source> : EMPTY ( -- )
+    FORTH CONTEXT @ DUP CURRENT 2! 6 CP 3 MOVE OVERT ;
+    CREATE 'BOOT ' hi , \ application vector
+<Unit>
+<Name> COLD
+<Source> : COLD ( -- )
+    BEGIN
+    U0 UP 74 CMOVE
+    PRESET 'BOOT @EXECUTE
+    FORTH CONTEXT @ DUP CURRENT 2! OVERT
+    QUIT
+    AGAIN ;
