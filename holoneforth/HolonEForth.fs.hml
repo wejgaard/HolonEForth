@@ -1,125 +1,363 @@
 <Chapter>
-<Name> HolonEForth.fs
-<Comment> mark tk::anchor1 1.0 mark insert 1.0 mark current 1.0 text {1.0 eForth Overview
-} 1.0 text {Before diving directly into eForth, I would like to discuss the general principles of Forth language. The language consists of a
-} 2.0 text {collection of words, which reside in the memory of a computer and can be executed by entering their names on the computer
-} 3.0 text {keyboard. A list of words can be compiled, given a new name and made a new word. In fact, most words in Forth are defined
-} 4.0 text {as lists of existing words. A small set of primitive words are defined in machine code of the native CPU. All other words are
-} 5.0 text {built from this primitive words and eventually refer to them when executed.
-} 6.0 text {Words are similar to procedures and subroutines in other languages. The difference is that Forth words are executable
-} 7.0 text {interactively when referenced by name, and they can be compiled into lists which can be referenced as new words.
-} 8.0 text {Programming in Forth is to define new and more powerful words as lists of existing words. This process continues until the
-} 9.0 text {final word becomes the solution to an application.
-} 10.0 text {Here I will state 'The Forth Law of Computing" without a proof:
-} 11.0 text {All computable functions can be constructed by defining new words as lists of words which include a small number of
-} 12.0 text {primitive words.
-} 13.0 text {This eForth model consists of about 200 words, of which only 31 are primitive words. Although it is very difficult to prove the
-} 14.0 text {above law, I will demonstrate it to you that from this small set of primitive words a complete operating system with many tools,
-} 15.0 text {that is the eForth model itself, can be built. If an operating system can be built this way, it is not difficult to understand that any
-} 16.0 text {application can be so developed.
-} 17.0 text {Forth is very similar to machine code. In a computer, the CPU has a finite set of machine instructions, and all computable
-} 18.0 text {functions are implemented as lists of these machine instructions. High level languages generally replace machine instruction
-} 19.0 text {lists by statements, functions, subroutines, and procedures, which can be used to construct procedures and subroutines at higher
-} 20.0 text {levels until the last procedure which is the application. This also helps demonstrating the validity of the above law.
-} 21.0 text {The primitive words must be constructed using native machine code of the host computer. They are also called low level
-} 22.0 text {words or code words. All other words are constructed as lists of existing words. They are called high level words or colon
-} 23.0 text {words because ":" (colon) is a Forth word which defines or constructs new words to replace lists of existing words.
-} 24.0 text {Forth as a computing system has two principal components: an user interface as the Forth language processor which interprets
-} 25.0 text {the commands entered from keyboard or equivalent devices; and a machine interface which interprets lists or words recursively
-} 26.0 text {until it can issue machine instructions in the primitive words to the host computer for execution. The user interface processes
-} 27.0 text {commands in text form. It is often referred to as the text interpreter and the outer interpreter.
-} 28.0 text {The machine interface executes words by processing recursively the word lists compiled in colon words to reach the primitive
-} 29.0 text {words which are handed to the host computer for execution. It is often called the inner interpreter and the address interpreter,
-} 30.0 text {because the word lists are often stored in the dictionary as address lists.
-} 31.0 text {
-} 32.0 text {1.1 Virtual Forth Computer
-} 33.0 text {Forth is a computer model which can be implemented on any real CPU with reasonable resources. This model is often called a
-} 34.0 text {virtual Forth computer. The minimal components of a virtual Forth computer are:
-} 35.0 text {1. A dictionary in memory to hold all the execution procedures.
-} 36.0 text {2. A return stack to hold return addresses of procedures yet to be executed.
-} 37.0 text {3. A data stack to hold parameters passing between procedures.
-} 38.0 text {4. A user area in RAM memory to hold all the system variables.
-} 39.0 text {5. A CPU to move date among stacks and memory, and to do ALU operations to parameters stored on the data stack.
-} 40.0 text {The eForth model is a detailed specification of a virtual Forth computer which can be implemented on many different CPU's
-} 41.0 text {and forces them to behave identically in executing an identical Forth instruction set. It was first implemneted on a PC using
-} 42.0 text {Intel 8086 CPU as a guiding model for other implementations. Here we will try to describe precisely the behavior of the virtual
-} 43.0 text {Forth computer. To describe precisely how this computer functions, we will use the 8086 machine code to clarify the
-} 44.0 text {specification.
-} 45.0 text {The following registers are required for a virtual Forth computer:
-} 46.0 text {Forth Register 8086 Register Function
-} 47.0 text {IP SI Interpreter Pointer
-} 48.0 text {SP SP Data Stack Pointer
-} 49.0 text {RP RP Return Stack Pointer
-} 50.0 text {WP AX Word or Work Pointer
-} 51.0 text {UP (in memory ) User Area Pointer
-} 52.0 text {In the dictionary, each procedure (or word in Forth terminology) occupies an area called code field, which contains executable
-} 53.0 text {machine code and data required by the code. There are two types of words used in eForth: code word whose code field contains
-} 54.0 text {only machine instructions, and colon word whose code field contains a call to the list processing subroutine and a list of word
-} 55.0 text {addresses. A word address is the code field address of the word in the dictionary. 4 bytes are allocated for the call to list
-} 56.0 text {processor. Word addresses are 2 bytes in length, and are pointers to code fields of words in the dictionary. The length of a code
-} 57.0 text {field varies depending upon the complexity of the word.
-} 58.0 text {In the code field of a code word there is a list of machine instructions of the native CPU. The machine instructions are
-} 59.0 text {terminated by a group of instructions, generally specified as a macro instruction named $NEXT. The function of $NEXT is to
-} 60.0 text {fetch the next word pointed to by the Interpreter Pointer IP, increment IP to point to the next word in the word list, and jump to
-} 61.0 text {the address just fetched. Since a word address points to a code field containing executable machine instructions, executing a
-} 62.0 text {word means jumping directly to the code field pointed to by the word address. $NEXT thus allows the virtual Forth computer
-} 63.0 text {to execute a list of words with very little CPU overhead. In the 8086 implementation, $NEXT is a macro assembling the
-} 64.0 text {following two machine instructions as shown below.
-} 65.0 text {In a colon word, the first four byte in the code field must be a subroutine call instruction to process the address list following
-} 66.0 text {this call instruction. This address list processing subroutine is named doLIST. doLIST pushes the contents in IP onto the return
-} 67.0 text {stack, copies the address of the first entry in its address list into IP and then calls $NEXT. $NEXT will then start executing this
-} 68.0 text {list of addresses in sequence.
-} 69.0 text {The last entry in the address list of a colon word must be EXIT. EXIT is a code word which undoes what doLIST
-} 70.0 text {accomplished. EXIT pops the top item on the return stack into the IP register. Consequently, IP points to the address following
-} 71.0 text {the colon word just executed. EXIT then invokes $NEXT which continues the processing of the word list, briefly interrupted
-} 72.0 text {by the last colon word in this word list.
-} 73.0 text {$NEXT MACRO
-} 74.0 text { LODSW \ load next word into WP (AX)
-} 75.0 text { JMP AX \ jump directly to the word thru WP
-} 76.0 text { ENDM \ IP (SI) now points to the next word
-} 77.0 text {doLIST ( a -- ) \ Run address list in a colon word.
-} 78.0 text {XCHG BP,SP \ exchange pointers
-} 79.0 text {PUSH SI \ push return stack
-} 80.0 text {XCHG BP,SP \ restore the pointers
-} 81.0 text {POP SI \ new list address
-} 82.0 text {$NEXT
-} 83.0 text {CODE EXIT \ Terminate a colon definition.
+<Name> holoneforth.fs
+<Comment> mark insert 1.0 mark current 1.0 text {1.0 eForth Overview
+} 1.0 text {
+} 2.0 text {Before diving directly into eForth, I would like to discuss the general principles} 3.0 mark tk::anchor3 3.82 text { of Forth language. The language consists of a
+} 3.82 text {collection of words, which reside in the memory of a computer and can be executed by entering their names on the computer
+} 4.0 text {keyboard. A list of words can be compiled, given a new name and made a new word. In fact, most words in Forth are defined
+} 5.0 text {as lists of existing words. A small set of primitive words are defined in machine code of the native CPU. All other words are
+} 6.0 text {built from this primitive words and eventually refer to them when executed.
+} 7.0 text {Words are similar to procedures and subroutines in other languages. The difference is that Forth words are executable
+} 8.0 text {interactively when referenced by name, and they can be compiled into lists which can be referenced as new words.
+} 9.0 text {Programming in Forth is to define new and more powerful words as lists of existing words. This process continues until the
+} 10.0 text {final word becomes the solution to an application.
+} 11.0 text {Here I will state 'The Forth Law of Computing" without a proof:
+} 12.0 text {All computable functions can be constructed by defining new words as lists of words which include a small number of
+} 13.0 text {primitive words.
+} 14.0 text {This eForth model consists of about 200 words, of which only 31 are primitive words. Although it is very difficult to prove the
+} 15.0 text {above law, I will demonstrate it to you that from this small set of primitive words a complete operating system with many tools,
+} 16.0 text {that is the eForth model itself, can be built. If an operating system can be built this way, it is not difficult to understand that any
+} 17.0 text {application can be so developed.
+} 18.0 text {Forth is very similar to machine code. In a computer, the CPU has a finite set of machine instructions, and all computable
+} 19.0 text {functions are implemented as lists of these machine instructions. High level languages generally replace machine instruction
+} 20.0 text {lists by statements, functions, subroutines, and procedures, which can be used to construct procedures and subroutines at higher
+} 21.0 text {levels until the last procedure which is the application. This also helps demonstrating the validity of the above law.
+} 22.0 text {The primitive words must be constructed using native machine code of the host computer. They are also called low level
+} 23.0 text {words or code words. All other words are constructed as lists of existing words. They are called high level words or colon
+} 24.0 text {words because ":" (colon) is a Forth word which defines or constructs new words to replace lists of existing words.
+} 25.0 text {Forth as a computing system has two principal components: an user interface as the Forth language processor which interprets
+} 26.0 text {the commands entered from keyboard or equivalent devices; and a machine interface which interprets lists or words recursively
+} 27.0 text {until it can issue machine instructions in the primitive words to the host computer for execution. The user interface processes
+} 28.0 text {commands in text form. It is often referred to as the text interpreter and the outer interpreter.
+} 29.0 text {The machine interface executes words by processing recursively the word lists compiled in colon words to reach the primitive
+} 30.0 text {words which are handed to the host computer for execution. It is often called the inner interpreter and the address interpreter,
+} 31.0 text {because the word lists are often stored in the dictionary as address lists.
+} 32.0 text {
+} 33.0 text {1.1 Virtual Forth Computer
+} 34.0 text {
+} 35.0 text {Forth is a computer model which can be implemented on any real CPU with reasonable resources. This model is often called a
+} 36.0 text {virtual Forth computer. The minimal components of a virtual Forth computer are:
+} 37.0 text {1. A dictionary in memory to hold all the execution procedures.
+} 38.0 text {2. A return stack to hold return addresses of procedures yet to be executed.
+} 39.0 text {3. A data stack to hold parameters passing between procedures.
+} 40.0 text {4. A user area in RAM memory to hold all the system variables.
+} 41.0 text {5. A CPU to move date among stacks and memory, and to do ALU operations to parameters stored on the data stack.
+} 42.0 text {The eForth model is a detailed specification of a virtual Forth computer which can be implemented on many different CPU's
+} 43.0 text {and forces them to behave identically in executing an identical Forth instruction set. It was first implemneted on a PC using
+} 44.0 text {Intel 8086 CPU as a guiding model for other implementations. Here we will try to describe precisely the behavior of the virtual
+} 45.0 text {Forth computer. To describe precisely how this computer functions, we will use the 8086 machine code to clarify the
+} 46.0 text {specification.
+} 47.0 text {
+} 48.0 text {The following registers are required for a virtual Forth computer:
+} 49.0 text {Forth Register 8086 Register Function
+} 50.0 text {IP SI Interpreter Pointer
+} 51.0 text {SP SP Data Stack Pointer
+} 52.0 text {RP RP Return Stack Pointer
+} 53.0 text {WP AX Word or Work Pointer
+} 54.0 text {UP (in memory ) User Area Pointer
+} 55.0 text {
+} 56.0 text {In the dictionary, each procedure (or word in Forth terminology) occupies an area called code field, which contains executable
+} 57.0 text {machine code and data required by the code. There are two types of words used in eForth: code word whose code field contains
+} 58.0 text {only machine instructions, and colon word whose code field contains a call to the list processing subroutine and a list of word
+} 59.0 text {addresses. A word address is the code field address of the word in the dictionary. 4 bytes are allocated for the call to list
+} 60.0 text {processor. Word addresses are 2 bytes in length, and are pointers to code fields of words in the dictionary. The length of a code
+} 61.0 text {field varies depending upon the complexity of the word.
+} 62.0 text {In the code field of a code word there is a list of machine instructions of the native CPU. The machine instructions are
+} 63.0 text {terminated by a group of instructions, generally specified as a macro instruction named $NEXT. The function of $NEXT is to
+} 64.0 text {fetch the next word pointed to by the Interpreter Pointer IP, increment IP to point to the next word in the word list, and jump to
+} 65.0 text {the address just fetched. Since a word address points to a code field containing executable machine instructions, executing a
+} 66.0 text {word means jumping directly to the code field pointed to by the word address. $NEXT thus allows the virtual Forth computer
+} 67.0 text {to execute a list of words with very little CPU overhead. In the 8086 implementation, $NEXT is a macro assembling the
+} 68.0 text {following two machine instructions as shown below.
+} 69.0 text {In a colon word, the first four byte in the code field must be a subroutine call instruction to process the address list following
+} 70.0 text {this call instruction. This address list processing subroutine is named doLIST. doLIST pushes the contents in IP onto the return
+} 71.0 text {stack, copies the address of the first entry in its address list into IP and then calls $NEXT. $NEXT will then start executing this
+} 72.0 text {list of addresses in sequence.
+} 73.0 text {The last entry in the address list of a colon word must be EXIT. EXIT is a code word which undoes what doLIST
+} 74.0 text {accomplished. EXIT pops the top item on the return stack into the IP register. Consequently, IP points to the address following
+} 75.0 text {the colon word just executed. EXIT then invokes $NEXT which continues the processing of the word list, briefly interrupted
+} 76.0 text {by the last colon word in this word list.
+} 77.0 text {
+} 78.0 text {$NEXT MACRO
+} 79.0 text { LODSW \ load next word into WP (AX)
+} 80.0 text { JMP AX \ jump directly to the word thru WP
+} 81.0 text { ENDM \ IP (SI) now points to the next word
+} 82.0 text {
+} 83.0 text {doLIST ( a -- ) \ Run address list in a colon word.
 } 84.0 text {XCHG BP,SP \ exchange pointers
-} 85.0 text {POP SI \ pop return stack } 86.0
+} 85.0 text {PUSH SI \ push return stack
+} 86.0 text {XCHG BP,SP \ restore the pointers
+} 87.0 text {POP SI \ new list address
+} 88.0 text {$NEXT
+} 89.0 text {
+} 90.0 text {CODE EXIT \ Terminate a colon definition.
+} 91.0 text {XCHG BP,SP \ exchange pointers
+} 92.0 text {POP SI \ pop return stack } 93.0
+<Section>
+<Name> eForth Kernel x86
+<Comment> mark insert 1.0 text {One of the most important feature of eForth is the small machine dependent kernel, which allows its to beported to other CPU's very conveniently. The selection of words in this kernel is based on the criteria that they are very difficult if not impossible to synthesize from other primitive words. From this set of } 1.0 mark current 1.315 text {kernel words, all other Forth words have to be built. The kernel words can be classified as following:
+} 1.315 text {
+} 2.0 text {System interface: BYE, ?rx, tx!, !io
+} 3.0 text {Inner interpreters: doLIT, doLIST, next, ?branch,
+} 4.0 text {branch, EXECUTE, EXIT
+} 5.0 text {Memory access: ! , @, C!, C@
+} 6.0 text {Return stack: RP@, RP!, R>, R@, R>
+} 7.0 text {Data stack: SP@, SP!, DROP, DUP, SWAP, OVER
+} 8.0 text {Logic: 0<, AND, OR, XOR
+} 9.0 text {Arithmetic: UM+
+} 10.0 text {
+} 11.0 text {The virtual Forth computer is based on a two-stack architecture. The return stack is used to allow a high level word to be executed in the address list of another high level word. It is very similar to the return stack used for nested subroutine calls in a conventional computer. Before executing a high level word in } 12.0 mark tk::anchor1 12.318 text {an address list, the next address of the list is pushed on the return stack so that the IP register can be used to scan the address list in the called word. When the called word is executed to completion, the stored address on the returned stack is popped back into IP register and execution of the calling word list can be continued.
+} 12.318 text { } 13.0
+<Source> $NEXT MACRO
+ LODSW \ load next word into WP (AX)
+ JMP AX \ jump directly to the word thru WP
+ ENDM \ IP (SI) now points to the next word
+
+doLIST ( a -- ) \ Run address list in a colon word.
+XCHG BP,SP \ exchange pointers
+PUSH SI \ push return stack
+XCHG BP,SP \ restore the pointers
+POP SI \ new list address
+$NEXT
+
+CODE EXIT \ Terminate a colon definition.
+XCHG BP,SP \ exchange pointers
+POP SI \ pop return stack
+XCHG BP,SP \ restore the pointers
+$NEXT
+
+CODE EXECUTE ( ca -- ) \ Execute the word at ca.
+POP BX
+JMP BX \ jump to the code address
+CODE doLIT ( -- w ) \ Push inline literal on data stack.
+LODSW \ get the literal compiled in-line
+PUSH AX \ push literal on the stack
+$NEXT \ execute next word after literal
+11
+2
+CODE next ( -- ) \ Decrement index and exit loop
+\ if index is less than 0.
+SUB WORD PTR [BP],1 \ decrement the index
+JC NEXT1 \ ?decrement below 0
+MOV SI,0[SI] \ no, continue loop
+$NEXT
+NEXT1:ADD BP,2 \ yes, pop the index
+ADD SI,2 \ exit loop
+$NEXT
+CODE ?branch ( f -- ) \ Branch if flag is zero.
+POP BX \ pop flag
+OR BX,BX \ ?flag=0
+JZ BRAN1 \ yes, so branch
+ADD SI,2 \ point IP to next cell
+$NEXT
+BRAN1:MOV SI,0[SI] \ IP:=(IP), jump to new address
+$NEXT
+CODE branch ( -- ) \ Branch to an inline address.
+MOV SI,0[SI] \ jump to new address unconditionally
+$NEXT
+A
+<Unit>
+<Name> $NEXT
+<Source> $NEXT MACRO
+ LODSW \ load next word into WP (AX)
+ JMP AX \ jump directly to the word thru WP
+ ENDM \ IP (SI) now points to the next word
+<Unit>
+<Name> doLIST
+<Source> doLIST ( a -- ) \ Run address list in a colon word.
+XCHG BP,SP \ exchange pointers
+PUSH SI \ push return stack
+XCHG BP,SP \ restore the pointers
+POP SI \ new list address
+$NEXT
+<Unit>
+<Name> EXIT
+<Source> CODE EXIT \ Terminate a colon definition.
+XCHG BP,SP \ exchange pointers
+POP SI \ pop return stack
+XCHG BP,SP \ restore the pointers
+$NEXT
+<Unit>
+<Name> EXECUTE
+<Source> CODE EXECUTE ( ca -- ) \ Execute the word at ca.
+POP BX
+JMP BX \ jump to the code address
+CODE doLIT ( -- w ) \ Push inline literal on data stack.
+LODSW \ get the literal compiled in-line
+PUSH AX \ push literal on the stack
+$NEXT \ execute next word after literal
+<Unit>
+<Name> next
+<Source> CODE next ( -- ) \ Decrement index and exit loop
+\ if index is less than 0.
+SUB WORD PTR [BP],1 \ decrement the index
+JC NEXT1 \ ?decrement below 0
+MOV SI,0[SI] \ no, continue loop
+$NEXT
+
+NEXT1:ADD BP,2 \ yes, pop the index
+ADD SI,2 \ exit loop
+$NEXT
+<Unit>
+<Name> ?branch
+<Source> CODE ?branch ( f -- ) \ Branch if flag is zero.
+POP BX \ pop flag
+OR BX,BX \ ?flag=0
+JZ BRAN1 \ yes, so branch
+ADD SI,2 \ point IP to next cell
+$NEXT
+
+BRAN1:MOV SI,0[SI] \ IP:=(IP), jump to new address
+$NEXT
+<Unit>
+<Name> branch
+<Source> CODE branch ( -- ) \ Branch to an inline address.
+MOV SI,0[SI] \ jump to new address unconditionally
+$NEXT
+<Unit>
+<Name> !
+<Source> CODE ! ( w a -- ) \ Pop the data stack to memory.
+POP BX \ get address from tos
+POP 0[BX] \ store data to that adddress
+$NEXT
+<Unit>
+<Name> @
+<Source> CODE @ ( a -- w ) \ Push memory location to data stack.
+POP BX \ get address
+PUSH 0[BX] \ fetch data
+$NEXT
+<Unit>
+<Name> C!
+<Source> CODE C! ( c b -- ) \ Pop data stack to byte memory.
+POP BX \ get address
+POP AX \ get data in a cell
+MOV 0[BX],AL \ store one byte
+$NEXT
+<Unit>
+<Name> C@
+<Source> CODE C@ ( b -- c ) \ Push byte memory content on data stack.
+POP BX \ get address
+XOR AX,AX \ AX=0 zero the hi byte
+MOV AL,0[BX] \ get low byte
+PUSH AX \ push on stack
+$NEXT
+<Unit>
+<Name> RP@
+<Source> CODE RP@ ( -- a ) \ Push current RP to data stack.
+PUSH BP \ copy address to return stack
+$NEXT \ pointer register BP
+<Unit>
+<Name> RP!
+<Source> CODE RP! ( a -- ) \ Set the return stack pointer.
+POP BP \ copy (BP) to tos
+$NEXT
+<Unit>
+<Name> R>
+<Source> CODE R> ( -- w ) \ Pop return stack to data stack.
+PUSH 0[BP] \ copy w to data stack
+ADD BP,2 \ adjust RP for popping
+$NEXT
+<Unit>
+<Name> R@
+<Source> CODE R@ ( -- w ) \ Copy top of return stack to data stack.
+PUSH 0[BP] \ copy w to data stack
+$NEXT
+<Unit>
+<Name> >R
+<Source> CODE >R ( w -- ) \ Push data stack to return stack.
+SUB BP,2 \ adjust RP for pushing
+POP 0[BP] \ push w to return stack
+$NEXT
+<Unit>
+<Name> DROP
+<Source> CODE DROP ( w -- ) \ Discard top stack item.
+ADD SP,2 \ adjust SP to pop
+$NEXT
+<Unit>
+<Name> DUP
+<Source> CODE DUP ( w -- w w ) \ Duplicate the top stack item.
+MOV BX,SP \ use BX to index the stack
+PUSH 0[BX]
+$NEXT
+<Unit>
+<Name> SWAP
+<Source> CODE SWAP ( w1 w2 -- w2 w1 ) \ Exchange top two stack items.
+POP BX \ get w2
+POP AX \ get w1
+PUSH BX \ push w2
+PUSH AX \ push w1
+$NEXT
+<Unit>
+<Name> OVER
+<Source> CODE OVER ( w1 w2 -- w1 w2 w1 ) \ Copy second stack item to top.
+MOV BX,SP \ use BX to index the stack
+PUSH 2[BX] \ get w1 and push on stack
+$NEXT
+<Unit>
+<Name> SP@
+<Source> CODE SP@ ( -- a ) \ Push the current data stack pointer.
+MOV BX,SP \ use BX to index the stack
+PUSH BX \ push SP back
+$NEXT
+<Unit>
+<Name> SP!
+<Source> CODE SP! ( a -- ) \ Set the data stack pointer.
+POP SP \ safety
+$NEXT
+<Unit>
+<Name> 0<
+<Source> CODE 0< ( n -- f ) \ Return true if n is negative.
+POP AX
+CWD \ sign extend AX into DX
+PUSH DX \ push 0 or -1
+$NEXT
+<Unit>
+<Name> AND
+<Source> CODE AND ( w w -- w ) \ Bitwise AND.
+POP BX
+POP AX
+AND BX,AX
+PUSH BX
+$NEXT
+<Unit>
+<Name> OR
+<Source> CODE OR ( w w -- w ) \ Bitwise inclusive OR.
+POP BX
+POP AX
+OR BX,AX
+PUSH BX
+$NEXT
+<Unit>
+<Name> XOR
+<Source> CODE XOR ( w w -- w ) \ Bitwise exclusive OR.
+POP BX
+POP AX
+XOR BX,AX
+PUSH BX
+$NEXT
+<Unit>
+<Name> UM+
+<Comment> mark insert 1.0 mark current 1.0 mark tk::anchor1 1.0 text {Add two numbers, return the sum and carry flag. } 1.0
+<Source> CODE UM+ ( w w -- w cy )
+XOR CX,CX \ CX=0 initial carry flag
+POP BX
+POP AX
+ADD AX,BX
+RCL CX,1 \ get carry
+PUSH AX \ push sum
+PUSH CX \ push carry
+$NEXT
 <Section>
 <Name> Variables and User Variables
-<Comment> mark insert 1.0 mark current 1.0 text {The term user variable was codified in earlier Forth systems on the mini-computers in which multitasking
-} 1.0 text {was an integral part of the Forth operating system. In a multitasking system, many user share CPU and
-} 2.0 text {other resources in the computing system. Each user has a private memory area to store essential
-} 3.0 text {information about its own task } 4.0 mark tk::anchor1 4.31 text {so that the system can leave a task temporarily to serve other users and
-} 4.31 text {return to this task continuing the unfinished work. In a single user environment, the user variables have
-} 5.0 text {the same functionality as system variables.
-} 6.0 text {In eForth, all variables used by the system are merged together and are implemented uniformly as user
-} 7.0 text {variables. A special memory area in the high memory is allocated for all these variables, and they are all
-} 8.0 text {initialized by copying a table of initial values stored in the cold boot area. A significant benefit of this
-} 9.0 text {scheme is that it allows the eForth system to operate in ROM memory naturally. It is very convenient for
-} 10.0 text {embedded system applications which preclude mass storage and file downloading.
-} 11.0 text {In an application, the user can choose to implement variables in the forms of user variables or regular
-} 12.0 text {variables when running in RAM memory. To run things in ROM, variables must be defined as user
-} 13.0 text {variables. Although eForth in the original model allows only a small number of user variable to be
-} 14.0 text {defined in an application, the user area can be enlarged at will by changing a few assembly constants and
-} 15.0 text {equates.
-} 16.0 text {In eForth only one vocabulary is used. The name of this vocabulary is FORTH. When FORTH is
-} 17.0 text {executed, the address of the pointer to the top of the dictionary is written into the first cell in the
-} 18.0 text {CONTEXT array. When the text interpreter searches the dictionary for a words, it picks up the pointer in
-} 19.0 text {CONTEXT and follow the thread through the name dictionary. If the name dictionary is exhausted, the
-} 20.0 text {text interpreter will pick up the next cell in the CONTEXT array and do the search. The first cell in
-} 21.0 text {CONTEXT array containing a 0 stops the searching. There are 8 cells in the CONTEXT array. Since the
-} 22.0 text {last cell must be zero, eForth allows up to 8 context vocabularies to be searched.
-} 23.0 text {There are two empty cells in the code field of FORTH. The first cell stores the pointer to the last name
-} 24.0 text {field in the name dictionary. The second field must be a 0, which serves to terminate a vocabulary link
-} 25.0 text {when many vocabularies are created. Vocabularies are useful in reducing the number of words the text
-} 26.0 text {interpreter must search to locate a word, and allowing related words to be grouped together as logic
-} 27.0 text {modules. Although the eForth itself only uses one vocabulary, the mechanism is provided to define
-} 28.0 text {multiple vocabularies in large applications.
-} 29.0 text {The CONTEXT arrays is designed as a vocabulary stack to implement the ONLY- ALSO concept of
-} 30.0 text {vocabulary search order first proposed by Bill Ragsdale in the Forth 83 Standard. 
-} 31.0 text {CURRENT points to a vocabulary thread to which new definitions are to be added. } 32.0
+<Comment> mark insert 1.0 text {The term user variable was codified in earlier Forth systems on the mini-computers in which multitasking was an integral part of the Forth operating system. In a multitasking system, many user share CPU and other resources in the computing system. Each user has a private memory area to store essential information about its own task so that the system can leave a task temporarily to serve other users and return to this task continuing the unfinished work. In a single user environment, the user variables have the same functionality as system variables.
+} 1.0 text {
+} 2.0 text {In eForth, all variables used by the system are merged together and are implemented uniformly as user variables. A special memory area in the high memory is allocated for all these variables, and they are all initialized by copying a table of initial values stored in the cold boot area. A significant benefit of this scheme is that it allows the eForth system to operate in ROM memory naturally. It is very convenient for embedded system applications which preclude mass storage and file downloading.
+} 3.0 text {
+} 4.0 text {In an application, the user can choose to implement variables in the forms of user variables or regular variables when running in RAM memory. To run things in ROM, variables must be defined as user variables. Although eForth in the original model allows only a small number of user variable to be defined in an application, the user area can be enlarged at will by changing a few assembly constants and equates.
+} 5.0 text {
+} 6.0 text {In eForth only one vocabulary is used. The name of this vocabulary is FORTH. } 7.0 mark current 7.77 text {When FORTH is executed, the address of the pointer to the top of the dictionary is written into the first cell in the CONTEXT array. When the text interpreter searches the dictionary for a words, it picks up the pointer in CONTEXT and follow the thread through the name dictionary. If the name dictionary is exhausted, the text interpreter will pick up the next cell in the CONTEXT array and do the search. The first cell in CONTEXT array containing a 0 stops the searching. There are 8 cells in the CONTEXT array. Since the last cell must be zero, eForth allows up to 8 context vocabularies to be searched.
+} 7.77 text {
+} 8.0 text {There are two empty cells in the code field of FORTH. The first cell stores the pointer to the last name field in the name dictionary. The second field must be a 0, which serves to terminate a vocabulary link when many vocabularies are created. Vocabularies are useful in reducing the number of words the text interpreter must search to locate a word, and allowing related words to be grouped together as logic modules. Although the eForth itself only uses one vocabulary, the mechanism is provided to define multiple vocabularies in large applications. The CONTEXT arrays is designed as a vocabulary stack to implement the ONLY-} 9.0 mark tk::anchor1 9.629 text {ALSO concept of vocabulary search order first proposed by Bill Ragsdale in the Forth 83 Standard.  CURRENT points to a vocabulary thread to which new definitions are to be added. } 9.629
 <Unit>
 <Name> doVAR
 <Source> : doVAR ( -- a ) R> ;
@@ -147,10 +385,7 @@
 	R> @ UP @ + ;
 <Section>
 <Name> User Variables
-<Comment> mark insert 1.0 text {eForth provides many functions in the vectored form to allow the behavior the these functions to be
-} 1.0 text {changed dynamically at run time. A vectored function stores a code address in a user variable.
-} 2.0 text {@EXECUTE is used to execute the function, given the address of the user variable. Following is the list
-} 3.0 text {of user variables defined in eForth: } 4.0
+<Comment> mark insert 1.0 mark current 1.0 text {eForth provides many functions in the vectored form to allow the behavior the these functions to be changed dynamically at run time. A vectored function stores a code address in a user variable. @EXECUTE is used to execute the function, given the address of the user variable. Following is the list } 1.0 mark tk::anchor1 1.299 text {of user variables defined in eForth: } 1.299
 <Unit>
 <Name> SP0
 <Comment> mark insert 1.0 mark current 1.0 text {Pointer to bottom of the data stack } 1.0
@@ -248,22 +483,13 @@
 <Source> LAST ( -- a )
 <Section>
 <Name> Common Functions
-<Comment> mark insert 1.0 mark current 1.0 text {This group of Forth words are commonly used in writing Forth applications. They are coded in high level
-} 1.0 text {to enhance the portability of eForth. In most Forth implementations, they are coded in machine language
-} 2.0 text {to increase the execute speed. After an eForth system is ported to a new CPU, this word set should be
-} 3.0 text {recoded in assembly to improve the run time performance of the system.
-} 4.0 text {?DUP, ROT, 2DROP, and 2DUP are stack operators supplementing the four classic stack operators
-} 5.0 text { DUP, SWAP, OVER and DROP.
-} 6.0 text {ROT is unique in that it accesses the third item on the data stack. All other stack operators can only
-} 7.0 text {access one or two stack items. In Forth programming, it is generally accepted that one should not try to
-} 8.0 text {access stack items deeper than the third item. When you have to access deeper into the data stack, it is a
-} 9.0 text {good time to re-evaluate your algorithm. Most often, you can avoid this situation by factoring your code
-} 10.0 text {into smaller parts which do not reach so deep.
-} 11.0 text {+, - and D+ are simple extensions from the primitive word UM+. It is interesting to see how the more
-} 12.0 text {commonly used arithmetic operators are derived. + is UM+ with the carry discarded. NOT returns the
-} 13.0 text {ones compliment of a number, and NEGATE returns the two's compliment. Because UM+ preserves the
-} 14.0 text {carry, it can be used to form multiple precision operators like D+. Later we will see how UM+ is used to
-} 15.0 text {do multiplication and division. } 16.0
+<Comment> mark insert 1.0 mark current 1.0 text {This group of Forth words are commonly used in writing Forth applications. They are coded in high level to enhance the portability of eForth. In most Forth implementations, they are coded in machine language to increase the execute speed. After an eForth system is ported to a new CPU, this word set should be recoded in assembly to improve the run time performance of the system.
+} 1.0 text {
+} 2.0 text {?DUP, ROT, 2DROP, and 2DUP are stack operators supplementing the four classic stack operators  DUP, SWAP, OVER and DROP. ROT is unique in that it accesses the third item on the data stack. 
+} 3.0 text {
+} 4.0 text {All other stack operators can only access one or two stack items. In Forth programming, it is generally accepted that one should not try to access stack items deeper than the third item. When you have to access deeper into the data stack, it is a good time to re-evaluate your algorithm. Most often, you can avoid this situation by factoring your code into smaller parts which do not reach so deep.
+} 5.0 mark tk::anchor1 6.0 text {
+} 6.0 text {+, - and D+ are simple extensions from the primitive word UM+. It is interesting to see how the more commonly used arithmetic operators are derived. + is UM+ with the carry discarded. NOT returns the ones compliment of a number, and NEGATE returns the two's compliment. Because UM+ preserves the carry, it can be used to form multiple precision operators like D+. Later we will see how UM+ is used to do multiplication and division. } 7.0
 <Unit>
 <Name> ?DUP
 <Source> : ?DUP ( w -- w w | 0 ) 
@@ -312,34 +538,21 @@
 	DUP 0< IF NEGATE THEN ;
 <Section>
 <Name> Comparison
-<Comment> mark insert 1.0 text {The primitive comparison word in eForth is ?branch and 0<. However, ?branch is at such a low level that
-} 1.0 text {it can not be readily used in high level Forth code. ?branch is secretly compiled into the high level Forth
-} 2.0 text {words by IF as an address literal. For all intentions and purposes, we can consider IF the equivalent of
-} 3.0 text {?branch. When IF is encountered, the top item on the data stack is considered a logic flag. If it is true
-} 4.0 text {(non-zero), the execution continues until ELSE, then jump to THEN, or to THEN directly if there is no
-} 5.0 text {ELSE clause.
-} 6.0 text {The following logic words are constructed using the IF...ELSE...THEN structure with 0< and XOR. XOR
-} 7.0 text {is used as 'not equal' operator, because if the top two items on the data stack are not equal, the XOR
-} 8.0 text {operator will return a non-zero number, which is considered to be 'true'.
-} 9.0 text {U< is used to compared two unsigned numbers. This operator is very important, especially in comparing
-} 10.0 text {addresses, as we assume that the addresses are unsigned numbers pointing to unique memory locations.
-} 11.0 text {The arithmetic comparison operator < cannot be used to determine whether one address is higher or lower
-} 12.0 text {than the other. Using < for address comparison had been the single cause of many failures in the annals of} 13.0 mark current 13.106 text {
-} 13.106 text {Forth.
-} 14.0 text {MAX retains the larger of the top two items on the data stack. Both numbers are assumed to be signed
-} 15.0 text {integers.
-} 16.0 text {MIN retains the smaller of the top two items on the data stack. Both numbers are assumed to be signed
-} 17.0 text {integers.
-} 18.0 text {WITHIN checks whether the third item on the data stack is within the range as specified by the top two
-} 19.0 text {numbers on the data stack. The range is inclusive as to the lower limit and exclusive to the upper limit. If
-} 20.0 text {the third item is within range, a true flag is returned on the data stack. Otherwise, a false flag is returned.
-} 21.0 text {All numbers are assumed to be unsigned integers. } 22.0
+<Comment> mark insert 1.0 mark current 1.0 text {The primitive comparison word in eForth is ?branch and 0<. 
+} 1.0 mark tk::anchor1 2.0 text {However, ?branch is at such a low level that it can not be readily used in high level Forth code. ?branch is secretly compiled into the high level Forth words by IF as an address literal. For all intentions and purposes, we can consider IF the equivalent of ?branch. When IF is encountered, the top item on the data stack is considered a logic flag. If it is true (non-zero), the execution continues until ELSE, then jump to THEN, or to THEN directly if there is no ELSE clause.
+} 2.0 text {The following logic words are constructed using the IF...ELSE...THEN structure with 0< and XOR. 
+} 3.0 text {XOR is used as 'not equal' operator, because if the top two items on the data stack are not equal, the XOR operator will return a non-zero number, which is considered to be 'true'.
+} 4.0 text {U< is used to compared two unsigned numbers. This operator is very important, especially in comparing addresses, as we assume that the addresses are unsigned numbers pointing to unique memory locations. The arithmetic comparison operator < cannot be used to determine whether one address is higher or lower than the other. Using < for address comparison had been the single cause of many failures in the annals of Forth.
+} 5.0 text {MAX retains the larger of the top two items on the data stack. Both numbers are assumed to be signed integers.
+} 6.0 text {MIN retains the smaller of the top two items on the data stack. Both numbers are assumed to be signed integers.
+} 7.0 text {WITHIN checks whether the third item on the data stack is within the range as specified by the top two numbers on the data stack. The range is inclusive as to the lower limit and exclusive to the upper limit. If the third item is within range, a true flag is returned on the data stack. Otherwise, a false flag is returned. All numbers are assumed to be unsigned integers. } 8.0
 <Unit>
 <Name> =
 <Source> : = ( w w -- t ) 
 	XOR IF 0 EXIT THEN -1 ;
 <Unit>
 <Name> U<
+<Comment> mark insert 1.0 mark current 1.0 text {U< is used to compared two unsigned numbers. This operator is very important, especially in comparing addresses, as we assume that the addresses are unsigned numbers pointing to unique } 1.0 mark tk::anchor2 1.185 text {memory locations. } 1.185
 <Source> : U< ( u u -- t ) 
 	2DUP XOR 0< IF SWAP DROP 0< EXIT THEN - 0< ;
 <Unit>
