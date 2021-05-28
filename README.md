@@ -4,12 +4,7 @@
 
 
 
-
-
-
 ![EForth-Unit](./Reference/efBilder/EForth-Unit.png)
-
-
 
 
 
@@ -19,7 +14,9 @@
 
 ### Textfile
 
-![Eforth-File](./Reference/efBilder/Eforth-File.png)
+![EForth-File](./Reference/efBilder/EForth-File.png)
+
+
 
 #### List of source code definitions and comments
 
