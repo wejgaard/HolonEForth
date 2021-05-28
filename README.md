@@ -5,28 +5,6 @@
 
 
 
-https://www.dropbox.com/s/14rkh8f2rb0wzlt/Ohne-Titel-3.mp4?dl=0
-
-
-https://youtu.be/NIxIYlv-hyQ
-
-
-
-
-
-
-
-
------------
-
-
-
-
-
-
-
-
-
 
 
 ![EForth-Unit](./Reference/efBilder/EForth-Unit.png)
@@ -41,7 +19,7 @@ https://youtu.be/NIxIYlv-hyQ
 
 ### Textfile
 
-![File-Eforth](/Users/wolfwejgaard/Desktop/efBilder/Eforth-File.png)
+![Eforth-File](./Reference/efBilder/Eforth-File.png)
 
 #### List of source code definitions and comments
 
@@ -75,7 +53,7 @@ Database is Tcl Metakit.  Views statt Tabellen
 
 ### Chapter eforth.fs
 
-![EForth-Chapter](/Users/wolfwejgaard/Desktop/efBilder/EForth-Chapter.png)
+![EForth-Chapter](./Reference/efBilder/EForth-Chapter.png)
 
 chapter page leer
 
@@ -102,7 +80,7 @@ units
 ### Chapter HolonEForth.fs
 
 
-![HolonEForth-Chapter](/Users/wolfwejgaard/Desktop/efBilder/HolonEForth-Chapter.png)
+![HolonEForth-Chapter](./Reference/efBilder/HolonEForth-Chapter.png)
 
 Chapter page - eForth Overview
 creates the file with all the units code - eforth is stored as one unit per forth definition - separated by the sections added in eforth.fs to group the words by function.
@@ -115,7 +93,7 @@ file holoneforth.fs entspricht eforth.fs.
 
 ## File HolonEForth.fs
 
-![HolonEForth-File](/Users/wolfwejgaard/Desktop/efBilder/HolonEForth-File.png)
+![HolonEForth-File](./Reference/efBilder/HolonEForth-File.png)
 
 
 
@@ -132,7 +110,7 @@ file holoneforth.fs entspricht eforth.fs.
   - Page je Section - eForth Overview 
   - Units = Units von Section
 
-![HolonEForth-Section](/Users/wolfwejgaard/Desktop/efBilder/HolonEForth-Section.png)
+![HolonEForth-Section](./Reference/efBilder/HolonEForth-Section.png)
 
 ---
 
@@ -140,7 +118,7 @@ file holoneforth.fs entspricht eforth.fs.
 
 ## Unit HolonEForth.fs
 
-![](/Users/wolfwejgaard/Desktop/efBilder/HolonEForth-Unit.png)
+![HolonEForth-Unit](./Reference/efBilder/HolonEForth-Unit.png)
 
 - Units
   - Struktur von Section
@@ -173,9 +151,6 @@ Chapter collects all unit code - now eforth.fs
 see [HolonS](https://holonforth.com/holons.html)
 
 
-![File-eforth-png](/Users/wolfwejgaard/Desktop/efBilder/File-eforth.png)
-
-
 
 
 
@@ -197,10 +172,3 @@ cd `dirname $0`
 tclsh ./src/holoncode.tcl HolonEForth.hdb &
 ````
 
-
-
-![HolonEForth-Section](/Users/wolfwejgaard/Desktop/HolonEForth-Section.png)
-
-
-
-<img src="/Users/wolfwejgaard/Desktop/Neuer Ordner/HolonEForth-Section.png" alt="HolonEForth-Section" />
