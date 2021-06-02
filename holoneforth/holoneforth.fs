@@ -166,7 +166,7 @@ $NEXT
 VARIABLE UP ( -- a)
 
 : doUSER ( -- a )
-    R> @ \ retrieve user area offset
+    R> @ 	    \ retrieve user area offset
     UP @ + ; \ add to user area base addr
 
 : doVOC ( -- ) 
@@ -244,8 +244,6 @@ LAST ( -- a )
 
 : NEGATE ( n -- -n ) 
 	NOT 1 + ;
-
-
 
 : DNEGATE ( d -- -d ) 
 	NOT >R NOT 1 UM+ R> + ;
@@ -404,14 +402,44 @@ LAST ( -- a )
 : #> ( w -- b u ) 
 	DROP HLD @ PAD OVER - ;
 
-: str ( n -- b u ) 
-	DUP >R ABS <# #S R> SIGN #> ;
+: str ( n -- b u )
+    DUP >R ( save a copy for sign)
+    ABS ( use absolute of n)
+    <# #S ( convert all digits)
+    R> SIGN ( add sign from n)
+    #> ; ( return number string addr and length)
 
-: HEX ( -- ) 
-	16 BASE ! ;
+: HEX ( -- )
+     16 BASE ! ;
 
-: DECIMAL ( -- ) 
-	10 BASE ! ;
+: DECIMAL ( -- )
+    10 BASE ! ;
+
+: .R ( n +n -- )
+    >R str ( convert n to a number string)
+    R> OVER - SPACES ( print leading spaces)
+    TYPE ; ( print number in +n column format)
+
+: U.R ( u +n -- )
+    >R ( save column number)
+    <# #S #> R> ( convert unsigned number)
+    OVER - SPACES ( print leading spaces)
+    TYPE ; ( print number in +n columns)
+
+: U. ( u -- )
+    <# #S #> ( convert unsigned number)
+    SPACE ( print one leading space)
+    TYPE ; ( print number)
+
+: . ( w -- )
+    ( Display an integer in free format, preceeded by a space.)
+    BASE @ 10 XOR ( if not in decimal mode)
+    IF U. EXIT THEN ( print unsigned number)
+    str SPACE TYPE ; ( print signed number if decimal)
+
+: ? ( a -- )
+    ( Display the contents in a memory cell.)
+    @ . ; ( very simple but useful command)
 
 : DIGIT? ( c base -- u t )
     >R 48 - 9 OVER <
@@ -597,7 +625,9 @@ LAST ( -- a )
     R> ; ( retrived err# )
 
 CREATE NULL$ 0 , $," coyote"
+
 : ABORT ( -- ) NULL$ THROW ;
+
 : abort" ( f -- ) IF do$ THROW THEN do$ DROP ;
 
 : $INTERPRET ( a -- )
