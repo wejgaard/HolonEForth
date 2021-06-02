@@ -10,7 +10,7 @@
 
 
 ---
-## Browser HolonEforth
+## Browser HolonEForth
 
 #### Content Management System
 
