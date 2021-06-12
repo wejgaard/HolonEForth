@@ -20,7 +20,7 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 
 
 ---
-## Browser HolonEforth
+## Browser HolonEForth
 
 #### Content Management System
 
