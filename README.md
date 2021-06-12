@@ -1,6 +1,6 @@
 # HolonEForth 
 
-HolonEForth combines Chen-Hanson Ting' s famous eforth.fs and eForthOverview.pdf in a CMS, 
+HolonEForth combines Chen-Hanson Ting' s universal eforth.fs and eForthOverview.pdf in a CMS, 
 
 and presents and handles source code and documentation together in a book view.
 
