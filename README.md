@@ -37,32 +37,29 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 
 - Content Management System
 - The whole project combined.
-- Chapter and section pages collect project documentation
-- Units contains source definition and separate comments 
-- Chapters create files.
-- Automatic Hypertext links throughout the system
+- Chapters create files if the name has a file extension.
+- Chapters, sections and units have a page each. 
+- Chapter and section pages collect project documentation.
+- Unit pages contain source definition and separate comments.
+- Automatic Hypertext links throughout the system.
 
 
 
 ### eForth Chapter eforth.fs
 
-- Chapter, Sections and Units have a Forth screen as page. 
 - No chapter text in eforth.fs.
 - Only one Section - eForth creates sections in the code with comment lines 
-- The units code fields contain the respective eForth files
-- The chapter file contains the code of the contained units 
-  - thus the  x86 Code Words and High Level Definitions
+- Chapterfiles collect the code units in the chapter.
+- Here the units are the eforth files with the kernel and high level words.
+- The chapterfile combines both.
 
 ![EForth-Chapter](./Reference/efBilder/EForth-Chapter.png)
 
 ###  Unit "High Level Definitions"
 
-- Chapterfiles contain the code units in the chapter.
-- Here the units are the eforth files with the kernel and high level words.
-- The chapterfile combines both.
 - A unit can contain as much code as you want, there is no defined limit.
-- Usually a Holon unit contains one code unit.
-- The units are separated in holon-eforth.fs  
+- Usually a Holon unit contains one source-code definition.
+- The definitions are separated in holon-eforth.fs  
 
 ![EForth-Unit](./Reference/efBilder/EForth-Unit.png)
 
@@ -71,14 +68,12 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 ### Chapter holon-eforth.fs
 
 - The chapter page contains the introduction to OverviewEforth.pdf
-- Sections are extracted from the document
-- Units of the current section 
+- The sections are extracted from the Overview
+- Units of the current section listed
 
 ![HolonEForth-Chapter](./Reference/efBilder/HolonEForth-Chapter.png)
 
 ### HolonEForth Section Comparison
-
-- With overview and units.
 
 ![HolonEForth-Section](./Reference/efBilder/HolonEForth-Section2.png)
 
