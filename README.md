@@ -1,19 +1,17 @@
 # HolonEForth
 
-HolonEForth combines Chen-Hanson Ting' s universal eforth.fs and eForthOverview.pdf in a CMS, 
-
+HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.pdf in a CMS, 
 and presents and handles source code and documentation together in a book view.
 
-Chapters create files, sections collect related program units, units have separate spaces for comments.
+Chapters create files, sections group related program units, units have separate space for comments. - HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project. 
 
-HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project. 
-
+---
 
 
 ## File eforth.fs
 
-- List of source code definitions and comments
-- Comment lines create structure
+- List of source code definitions and comments.
+- Comment lines create structure.
 
 ![EForth-File](./Reference/efBilder/EForth-File.png)
 
@@ -21,7 +19,7 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 
 ## File eforthOverview.pdf
 
-- Documentation of eForth 
+- Documentation of eForth. 
 
 - Detailed description of the eForth words and functions.
 
@@ -35,7 +33,7 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 
 ## Book HolonEForth
 
-- Content Management System
+- Content Management System.
 - The whole project combined.
 - Chapters create files if the name has a file extension.
 - Chapters, sections and units have a page each. 
@@ -49,16 +47,16 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 
 - No chapter text in eforth.fs.
 - Only one Section - eForth creates sections in the code with comment lines 
-- Chapterfiles collect the code units in the chapter.
-- Here the units are the eforth files with the kernel and high level words.
-- The chapterfile combines both.
+- Chapter files collect the code units of the chapter.
+- Here the units are the eforth files with the kernel and high-level words.
+- The chapter file combines both.
 
 ![EForth-Chapter](./Reference/efBilder/EForth-Chapter.png)
 
 ###  Unit "High Level Definitions"
 
 - A unit can contain as much code as you want, there is no defined limit.
-- Usually a Holon unit contains one source-code definition.
+- Usually, a Holon unit contains one source-code definition.
 - The definitions are separated in holon-eforth.fs  
 
 ![EForth-Unit](./Reference/efBilder/EForth-Unit.png)
@@ -90,7 +88,7 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 
 ## File holon-eforth.fs
 
-- Chapterfile of HolonEForth.
+- Chapter file of HolonEForth.
 - Pipe to the interpreter/compiler.
 - Instantly updated with changes in the browser.
 
