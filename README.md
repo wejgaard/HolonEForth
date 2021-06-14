@@ -3,7 +3,7 @@
 HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.pdf in a CMS, 
 and presents and handles source code and documentation together in a book view.
 
-Chapters create files, sections group related program units, units have separate space for comments. - HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project. 
+HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project. 
 
 ---
 
