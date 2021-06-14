@@ -1,4 +1,4 @@
-# HolonEForth 
+# HolonEForth
 
 HolonEForth combines Chen-Hanson Ting' s universal eforth.fs and eForthOverview.pdf in a CMS, 
 
@@ -22,9 +22,10 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 ## File eforthOverview.pdf
 
 - Documentation of eForth 
+
 - Detailed description of the eForth words and functions.
 
-![eForthOverview](/Users/wolfwejgaard/Desktop/HolonEForth BIlder/eForthOverview.png)
+  ![eForthOverview](./Reference/efBilder/eForthOverview.png)
 
 
 
@@ -34,18 +35,16 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 
 ## Book HolonEForth
 
-The book contains eforth.fs and eforthOverview.pdf together tightly connected
-
 - Content Management System
 - The whole project combined.
-- Chapters create files.
 - Chapter and section pages collect project documentation
 - Units contains source definition and separate comments 
-- Automatic Hypertext links through complete system
+- Chapters create files.
+- Automatic Hypertext links throughout the system
 
 
 
-### Chapter eforth.fs
+### eForth Chapter eforth.fs
 
 - Chapter, Sections and Units have a Forth screen as page. 
 - No chapter text in eforth.fs.
@@ -56,24 +55,38 @@ The book contains eforth.fs and eforthOverview.pdf together tightly connected
 
 ![EForth-Chapter](./Reference/efBilder/EForth-Chapter.png)
 
+###  Unit "High Level Definitions"
+
+- Chapterfiles contain the code units in the chapter.
+- Here the units are the eforth files with the kernel and high level words.
+- The chapterfile combines both.
+- A unit can contain as much code as you want, there is no defined limit.
+- Usually a Holon unit contains one code unit.
+- The units are separated in holon-eforth.fs  
+
+![EForth-Unit](./Reference/efBilder/EForth-Unit.png)
+
+
+
 ### Chapter holon-eforth.fs
 
-- The page contains the start of OverviewEforth.pdf
+- The chapter page contains the introduction to OverviewEforth.pdf
 - Sections are extracted from the document
 - Units of the current section 
 
 ![HolonEForth-Chapter](./Reference/efBilder/HolonEForth-Chapter.png)
 
-### Section Comparison
+### HolonEForth Section Comparison
 
-- Shows the section page in eForthOverview 
-- And the eforth.fs units of the section
+- With overview and units.
 
-![HolonEForth-Section](./Reference/efBilder/HolonEForth-Section.png)
+![HolonEForth-Section](./Reference/efBilder/HolonEForth-Section2.png)
 
-### Unit U<
 
-- Units page with source code definition and a separate pane for comments.
+
+### HolonEForth Unit U<
+
+- Unit page with source code definition and a separate pane for comments.
 - The source code is written to the chapter file at the start of a session and on every change.
 
 ![HolonEForth-Unit](./Reference/efBilder/HolonEForth-Unit.png)
@@ -87,6 +100,8 @@ The book contains eforth.fs and eforthOverview.pdf together tightly connected
 - Instantly updated with changes in the browser.
 
 ![HolonEForth-File](./Reference/efBilder/HolonEForth-File.png)
+
+---
 
 
 
@@ -106,20 +121,27 @@ cd `dirname $0`
 tclsh ./src/holoncode.tcl HolonEForth.hdb &
 ````
 
----
 
-#### Notes
 
-##### tclsh
+## Notes
 
-The Tcl/Tk shell, used to be included in operating systems, if not available on your's: 
+#### tclsh
 
 Download and install the free Tcl/Tk via https://docs.activestate.com/activetcl/8.6/
 
-##### src/holoncode.tcl
+#### src/holoncode.tcl
 
-Project source code copied from the HolonCode repo.
+Project source code copied from the HolonCode repository.
 
-##### HolonEForth.hdb
+#### HolonEForth.hdb
 
 The database of the CMS. Contains the complete project, recreates the source files at a new session.
+
+
+
+
+
+
+
+
+
