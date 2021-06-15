@@ -1,12 +1,12 @@
 # HolonEForth
 
-HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.pdf in a CMS, 
-and presents and handles source code and documentation together in a book view.
+HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.pdf.
 
-HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project. 
+It handles source code and documentation together in a CMS and presents it in a book view.
+
+
 
 ---
-
 
 ## File eforth.fs
 
@@ -117,6 +117,8 @@ tclsh ./src/holoncode.tcl HolonEForth.hdb &
 
 
 ## Notes
+
+HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project. 
 
 #### tclsh
 
