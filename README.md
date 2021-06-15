@@ -66,8 +66,8 @@ It handles source code and documentation together in a CMS and presents it in a 
 ### Chapter holon-eforth.fs
 
 - The chapter page contains the introduction to OverviewEforth.pdf
-- The sections are extracted from the Overview
-- Units of the current section listed
+- The sections are extracted from the Overview.
+- The Units of the current section.
 
 ![HolonEForth-Chapter](./Reference/efBilder/HolonEForth-Chapter.png)
 
