@@ -134,7 +134,11 @@ The database of the CMS. Contains the complete project, recreates the source fil
 
 
 
+## Using HolonEForth
 
+In the texts and definitions unit names are links.
+
+Click to see the unit, control-click to see where the unit is used.
 
 
 
