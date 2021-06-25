@@ -89,12 +89,12 @@ CODE R@ ( -- w ) \ Copy top of return stack to data stack.
 	PUSH 0[BP] \ copy w to data stack
 	$NEXT
 
-CODE >R ( w -- ) \ Push data stack to return stack.
+CODE >R ( w -- ) 
 	SUB BP,2 \ adjust RP for pushing
 	POP 0[BP] \ push w to return stack
 	$NEXT
 
-CODE DROP ( w -- ) \ Discard top stack item.
+CODE DROP ( w -- ) 
 	ADD SP,2 \ adjust SP to pop
 	$NEXT
 
