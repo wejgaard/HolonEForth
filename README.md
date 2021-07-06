@@ -100,44 +100,50 @@ It handles source code and documentation together in a CMS and presents it in a 
 
 ## Run HolonEForth
 
-#### Windows
+HolonEForth works in Windows, macOS and Linux. Use the appropriate commandfile.
 
-```
-tclsh .\src\holoncode.tcl HolonEForth.hdb
-````
+#### RunWindows.bat
 
-#### macOS and Linux
+#### RunMacOS.command
 
-````
-#!/bin/bash
-cd `dirname $0` 
-tclsh ./src/holoncode.tcl HolonEForth.hdb &
-````
+####  RunLinux.sh
+
+--
+
+#### tclsh
+
+HolonEForth runs in Tcl/Tk. If this is not present in your system:
+
+Download and install the free Tcl/Tk via https://docs.activestate.com/activetcl/8.6/
 
 
+
+---
 
 ## Notes
 
 HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project. 
 
-#### tclsh
-
-Download and install the free Tcl/Tk via https://docs.activestate.com/activetcl/8.6/
-
 #### src/holoncode.tcl
 
-Project source code copied from the HolonCode repository.
+This is the project source code, copied from the HolonCode repository.
 
 #### HolonEForth.hdb
 
-The database of the CMS. Contains the complete project, recreates the source files at a new session.
+This is the database of the Holon CMS. It contains the complete project.
+
+The source files are recreated at each new session. Thus don't need to be saved.
+
+
 
 
 ---
 
 ## Using HolonEForth
 
-In the texts and definitions unit names are links.
+#### Hyperlinks
+
+In the texts and definitions unit names (Forth words) are hyperlinks.
 
 Click to see the unit, control-click to see where the unit is used.
 

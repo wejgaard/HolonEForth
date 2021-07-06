@@ -3,20 +3,20 @@ $NEXT MACRO
  	JMP AX \ jump directly to the word thru WP
  	ENDM \ IP (SI) now points to the next word
 
-doLIST ( a -- ) \ Run address list in a colon word.
+doLIST ( a -- ) 
 	XCHG BP,SP \ exchange pointers
 	PUSH SI \ push return stack
 	XCHG BP,SP \ restore the pointers
 	POP SI \ new list address
 	$NEXT
 
-CODE EXIT \ Terminate a colon definition.
+CODE EXIT 
 	XCHG BP,SP \ exchange pointers
 	POP SI \ pop return stack
 	XCHG BP,SP \ restore the pointers
 	$NEXT
 
-CODE EXECUTE ( ca -- ) \ Execute the word at ca.
+CODE EXECUTE ( ca -- ) 
 	POP BX
 	JMP BX \ jump to the code address
 	CODE doLIT ( -- w ) \ Push inline literal on data stack.
@@ -24,8 +24,7 @@ CODE EXECUTE ( ca -- ) \ Execute the word at ca.
 	PUSH AX \ push literal on the stack
 	$NEXT \ execute next word after literal
 
-CODE next ( -- ) \ Decrement index and exit loop
-\ if index is less than 0.
+CODE next ( -- ) 
 	SUB WORD PTR [BP],1 \ decrement the index
 	JC NEXT1 \ ?decrement below 0
 	MOV SI,0[SI] \ no, continue loop
@@ -35,7 +34,7 @@ CODE next ( -- ) \ Decrement index and exit loop
 	ADD SI,2 \ exit loop
 	$NEXT
 
-CODE ?branch ( f -- ) \ Branch if flag is zero.
+CODE ?branch ( f -- ) 
 	POP BX \ pop flag
 	OR BX,BX \ ?flag=0
 	JZ BRAN1 \ yes, so branch
@@ -45,47 +44,47 @@ CODE ?branch ( f -- ) \ Branch if flag is zero.
 	BRAN1:MOV SI,0[SI] \ IP:=(IP), jump to new address
 	$NEXT
 
-CODE branch ( -- ) \ Branch to an inline address.
+CODE branch ( -- ) 
 	MOV SI,0[SI] \ jump to new address unconditionally
 	$NEXT
 
-CODE ! ( w a -- ) \ Pop the data stack to memory.
+CODE ! ( w a -- ) 
 	POP BX \ get address from tos
 	POP 0[BX] \ store data to that adddress
 	$NEXT
 
-CODE @ ( a -- w ) \ Push memory location to data stack.
+CODE @ ( a -- w ) .
 	POP BX \ get address
 	PUSH 0[BX] \ fetch data
 	$NEXT
 
-CODE C! ( c b -- ) \ Pop data stack to byte memory.
+CODE C! ( c b -- ) 
 	POP BX \ get address
 	POP AX \ get data in a cell
 	MOV 0[BX],AL \ store one byte
 	$NEXT
 
-CODE C@ ( b -- c ) \ Push byte memory content on data stack.
+CODE C@ ( b -- c ) 
 	POP BX \ get address
 	XOR AX,AX \ AX=0 zero the hi byte
 	MOV AL,0[BX] \ get low byte
 	PUSH AX \ push on stack
 	$NEXT
 
-CODE RP@ ( -- a ) \ Push current RP to data stack.
+CODE RP@ ( -- a ) 
 	PUSH BP \ copy address to return stack
 	$NEXT \ pointer register BP
 
-CODE RP! ( a -- ) \ Set the return stack pointer.
+CODE RP! ( a -- ) 
 	POP BP \ copy (BP) to tos
 	$NEXT
 
-CODE R> ( -- w ) \ Pop return stack to data stack.
+CODE R> ( -- w ) 
 	PUSH 0[BP] \ copy w to data stack
 	ADD BP,2 \ adjust RP for popping
 	$NEXT
 
-CODE R@ ( -- w ) \ Copy top of return stack to data stack.
+CODE R@ ( -- w ) 
 	PUSH 0[BP] \ copy w to data stack
 	$NEXT
 
@@ -98,53 +97,53 @@ CODE DROP ( w -- )
 	ADD SP,2 \ adjust SP to pop
 	$NEXT
 
-CODE DUP ( w -- w w ) \ Duplicate the top stack item.
+CODE DUP ( w -- w w ) 
 	MOV BX,SP \ use BX to index the stack
 	PUSH 0[BX]
 	$NEXT
 
-CODE SWAP ( w1 w2 -- w2 w1 ) \ Exchange top two stack items.
+CODE SWAP ( w1 w2 -- w2 w1 ) 
 	POP BX \ get w2
 	POP AX \ get w1
 	PUSH BX \ push w2
 	PUSH AX \ push w1
 	$NEXT
 
-CODE OVER ( w1 w2 -- w1 w2 w1 ) \ Copy second stack item to top.
+CODE OVER ( w1 w2 -- w1 w2 w1 )
 	MOV BX,SP \ use BX to index the stack
 	PUSH 2[BX] \ get w1 and push on stack
 	$NEXT
 
-CODE SP@ ( -- a ) \ Push the current data stack pointer.
+CODE SP@ ( -- a ) 
 	MOV BX,SP \ use BX to index the stack
 	PUSH BX \ push SP back
 	$NEXT
 
-CODE SP! ( a -- ) \ Set the data stack pointer.
+CODE SP! ( a -- ) 
 	POP SP \ safety
 	$NEXT
 
-CODE 0< ( n -- f ) \ Return true if n is negative.
+CODE 0< ( n -- f ) 
 	POP AX
 	CWD \ sign extend AX into DX
 	PUSH DX \ push 0 or -1
 	$NEXT
 
-CODE AND ( w w -- w ) \ Bitwise AND.
+CODE AND ( w w -- w ) 
 	POP BX
 	POP AX
 	AND BX,AX
 	PUSH BX
 	$NEXT
 
-CODE OR ( w w -- w ) \ Bitwise inclusive OR.
+CODE OR ( w w -- w ) 
 	POP BX
 	POP AX
 	OR BX,AX
 	PUSH BX
 	$NEXT
 
-CODE XOR ( w w -- w ) \ Bitwise exclusive OR.
+CODE XOR ( w w -- w ) 
 	POP BX
 	POP AX
 	XOR BX,AX

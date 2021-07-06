@@ -4,14 +4,14 @@ $NEXT MACRO
  	JMP AX 			\ jump directly to the word thru WP
  	ENDM 			\ IP (SI) now points to the next word
 
-doLIST ( a -- ) 		\ Run address list in a colon word.
+doLIST ( a -- )	 \ Run address list in a colon word.
 	XCHG BP,SP \ exchange pointers
 	PUSH SI \ push return stack
 	XCHG BP,SP \ restore the pointers
 	POP SI \ new list address
 	$NEXT
 
-CODE EXIT \ Terminate a colon definition.
+CODE EXIT    \ Terminate a colon definition.
 	XCHG BP,SP \ exchange pointers
 	POP SI \ pop return stack
 	XCHG BP,SP \ restore the pointers
