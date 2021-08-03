@@ -124,9 +124,9 @@ Download and install the free Tcl/Tk via https://docs.activestate.com/activetcl/
 
 HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project. 
 
-#### src/holoncode.tcl
+#### HolonCode/holoncode.tcl
 
-This is the project source code, copied from the HolonCode repository.
+This is the projects code, copied from the HolonCode repository.
 
 #### HolonEForth.hdb
 
