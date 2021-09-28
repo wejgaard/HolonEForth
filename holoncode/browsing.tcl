@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-proc SetCurrent {type} {
+proc SetCurrent {type} { 
 	global view
 	switch $type {
 		chapter {set l $view(chapters)}
@@ -657,8 +657,8 @@ proc ShowFoundPages {rows} {
 			}
 		}
   	}
-#    	if {$count==0} {InsertRevisionline "(none)" normal 0}
-	set ::infomode found
+    	if {$count==0} {InsertRevisionline "(none)" normal 0}
+	set ::infomode found  
 }
 
 proc ShowVisitedPages {} {
@@ -720,6 +720,6 @@ proc ShowRevisions {} {
 		}
 		InsertRevisionline $name normal $id
 	}
-	set ::infomode revision
+	set ::infomode revisions
 }
 

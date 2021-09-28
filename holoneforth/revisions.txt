@@ -3,14 +3,10 @@
 
 
 
-
-
 EForth.fs imported
 
 
   0.0.2 
-
-
 
 
 
@@ -24,14 +20,7 @@ Use it.
 
 
 
-
-
   0.0.4 Import eforth.fs 
-
-mark insert 1.0 text {Original eforth.fs imported as a unit into the code pane. 
-} 1.0 mark current 2.0 text {The chapter eforth.fs creates a source file containing all the unit codes
-} 2.0 text {now just one unit - thus reproduces eforth.fs
-} 3.0 text { } 4.0
 
 Original eforth.fs imported as a unit into the code pane. 
 The chapter eforth.fs creates a source file containing all the unit codes
@@ -47,11 +36,7 @@ now just one unit - thus reproduces eforth.fs
 
 
 
-
-
   0.0.6 
-
-
 
 
 
@@ -60,18 +45,12 @@ now just one unit - thus reproduces eforth.fs
 
   0.0.7 Import Codewords 
 
-mark insert 1.0 mark current 1.0 text {Added the x86 Codewords from Dr. Ting Overview } 1.0
-
 Added the x86 Codewords from Dr. Ting Overview
 
 
 
 
   0.0.8 Import Highlevel 
-
-mark insert 1.0 mark current 1.0 text {Copy descriptions in sections to comment flelds in words.
-} 1.0 text {EXPECT  QUERY  WORD  CHAR  PARSE  CATCH  EXPECT
-} 2.0 text {and some more } 3.0
 
 Copy descriptions in sections to comment flelds in words.
 EXPECT  QUERY  WORD  CHAR  PARSE  CATCH  EXPECT
@@ -81,12 +60,6 @@ and some more
 
 
   1.001 eForth Overview is on board 
-
-mark insert 1.0 mark current 1.0 tagon b 1.0 text {Old Holon Versioning} 1.0 tagoff b 1.20 text {
-} 1.20 text {Gives better readable list of page revisions. See HolonTF and HolonS.
-} 2.0 text {Choose what you like, see Configuration/Preferences
-} 3.0 text {
-} 4.0 text { } 5.0
 
 Old Holon Versioning
 Gives better readable list of page revisions. See HolonTF and HolonS.
@@ -102,8 +75,6 @@ Choose what you like, see Configuration/Preferences
 
 
 
-
-
   1.003 Adding comments to words 
 
 
@@ -111,11 +82,7 @@ Choose what you like, see Configuration/Preferences
 
 
 
-
-
   1.004 
-
-
 
 
 

@@ -254,7 +254,6 @@ proc WriteSection {f} {
 	while {$u != [Section]} {
 		if {[Extension]=="txt"} {
 			puts $f "\n  [GetPage $u name] \n"
-			puts $f [GetPage $u text]\n
 			puts $f [RemoveTags [GetPage $u text]]\n
 		}
 		puts $f [GetPage $u source]\n

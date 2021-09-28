@@ -89,7 +89,7 @@ proc FindReplace {} {
 }
 
 proc PackButtons {} {
-	pack $::Back $::View $::New $::Edit $::Load .b.leer $::Rev -side left -padx 0 -pady 0 
+	pack $::Back $::View $::New $::Edit $::Load .b.leer $::Rev  -side left -padx 0 -pady 0 
 	pack [FindReplace] -in .b -side right 
 }
 
@@ -463,7 +463,6 @@ proc ShowHolon {} {
 	global view
 	set ::page [lindex [PageStack] 1]
 	ShowPage [CurrentPage]
-#	ShowPage 0
 	ShowVisitedPages 
 	ShowRevision $::version
 	after 300 {TextCodePanes [CurrentPage]}
@@ -495,7 +494,7 @@ proc RunHolon {}  {
 	InitSpecial
   	ShowHolon
   	FindLoop
-	wm protocol $topwin WM_DELETE_WINDOW {EndSession}
+  	wm protocol $topwin WM_DELETE_WINDOW {EndSession}
 	update idletasks
 	after idle raise $topwin
 	tkwait window $topwin
