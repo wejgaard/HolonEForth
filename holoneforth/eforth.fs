@@ -1,4 +1,3 @@
-\ Inner Interpreter 
 $NEXT MACRO
  	LODSW 			\ load next word into WP (AX)
  	JMP AX 			\ jump directly to the word thru WP
@@ -25,8 +24,6 @@ CODE EXECUTE ( ca -- ) \ Execute the word at ca.
 	PUSH AX \ push literal on the stack
 	$NEXT \ execute next word after literal
 
-( Loops and Branches )
-
 CODE next ( -- ) \ Decrement index and exit loop
 	\ if index is less than 0.
 	SUB WORD PTR [BP],1 \ decrement the index
@@ -52,7 +49,6 @@ CODE branch ( -- ) \ Branch to an inline address.
 	MOV SI,0[SI] \ jump to new address unconditionally
 	$NEXT
 
-( Memory Access )
 
 CODE ! ( w a -- ) \ Pop the data stack to memory.
 	POP BX \ get address from tos
@@ -77,7 +73,6 @@ CODE C@ ( b -- c ) \ Push byte memory content on data stack.
 	PUSH AX \ push on stack
 	$NEXT
 
-( Return Stack )
 
 CODE RP@ ( -- a ) \ Push current RP to data stack.
 	PUSH BP \ copy address to return stack
@@ -101,7 +96,6 @@ CODE >R ( w -- ) \ Push data stack to return stack.
 	POP 0[BP] \ push w to return stack
 	$NEXT
 
-( Data Stack )
 
 CODE DROP ( w -- ) \ Discard top stack item.
 	ADD SP,2 \ adjust SP to pop

@@ -82,7 +82,7 @@ Choose what you like, see Configuration/Preferences
 
 
 
-  1.004 
+  1.004 Added numbers in section titles 
 
 
 
