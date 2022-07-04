@@ -126,7 +126,6 @@ CODE SP@ ( -- a ) \ Push the current data stack pointer.
 CODE SP! ( a -- ) \ Set the data stack pointer.
 	POP SP \ safety
 	$NEXT
-
 ( Logical Words )
 
 CODE 0< ( n -- f ) \ Return true if n is negative.

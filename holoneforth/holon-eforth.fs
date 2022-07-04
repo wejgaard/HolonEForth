@@ -1,5 +1,3 @@
-
-
 $NEXT MACRO
  	LODSW \ load next word into WP (AX)
  	JMP AX \ jump directly to the word thru WP

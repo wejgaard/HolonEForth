@@ -88,3 +88,10 @@ Choose what you like, see Configuration/Preferences
 
 
 
+
+  1.005 Indented subsections 
+
+Section list is clearer
+
+
+
