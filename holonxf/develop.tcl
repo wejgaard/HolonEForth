@@ -217,7 +217,7 @@ proc AddLogPage {} {
 	if [Editing] SaveIt
 	global version 
 	LastProgramUnit
-	set u [AppendPage name "$version" changes $version date [clock seconds] ]
+	set u [AppendPage name "$version" title "$version" changes $version date [clock seconds] ]
 	InsertUnit $u after
 	SetBase revpage $u
 	.b.rev config -text "Rev. $version"

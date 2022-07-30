@@ -15,8 +15,8 @@
 
 proc CreateColors {} {
 	global color
-	set color(menu)    #efefef
-	set color(system)  #efefef  
+	set color(menu)    #efefef   
+	set color(system)  #efefef
 	set color(button)  #efefef
 	set color(frame)   #efefef
 	
@@ -124,7 +124,7 @@ set view(test) ""
 set view(treeactive) ""
 
 set view(sash0) "0 50"     ;# Position of sash Text/Code
-set view(sash1) "0 250"   ;# Position of sash Code/Test
+set view(sash1) "0 2000"   ;# Position of sash Code/Test
 set view(height) 7            ;# Number of elements visible in each list
 set view(dragging) 0
 
@@ -337,7 +337,7 @@ set Sections {}
 proc AppendSection {s} {
 	global Sections view
 	lappend Sections $s
-	$view(sections) insert end "  [GetPage $s name]"
+	$view(sections) insert end "  [GetPage $s title]"
 	if {[Section]==$s} {
 		set i [expr [$view(sections) index end]-1]
 		$view(sections) activate $i
@@ -399,8 +399,6 @@ proc FocusSections {} {
 	$view(sections) selection set [$view(sections) index active]
 }
 
-
-
 # Copyright (c) 2008 - 2021 Wolf Wejgaard. All  Rights Reserved.
 #  
 # This program is free software: you can redistribute it and/or modify
@@ -429,7 +427,7 @@ proc iLastUnit {} {
 proc AppendUnit {u} {
 	global Units view
 	lappend Units $u
-	$view(units) insert end "  [GetPage $u name]" 
+	$view(units) insert end "  [GetPage $u title]" 
 	# show name clashes red (two or more units with the same name)
 	set n [llength [mk::select wdb.pages name [GetPage $u name] type unit]]
 	if {$n>1} {
@@ -597,13 +595,13 @@ proc TreeSections {} {
 		set s [Section]
 		$view(tree) tag bind tag$s <Button-1> "GotoTree	$s"	
 		if {[Section]==$view(treeactive)} {
-			$view(tree) insert end "  [GetPage [Section] name]\n" "marked normal tag$s"
+			$view(tree) insert end "  [GetPage [Section] title]\n" "marked normal tag$s"
 			$view(tree) see end
 		} else {
 			if {[Section]==$current} {
-				$view(tree) insert end "  [GetPage [Section] name]\n" "normal tag$s"
+				$view(tree) insert end "  [GetPage [Section] title]\n" "normal tag$s"
 			} else {
-				$view(tree) insert end "  [GetPage [Section] name]\n" "normal tag$s"
+				$view(tree) insert end "  [GetPage [Section] title]\n" "normal tag$s"
 			}
 		}
 		if {[GetBase view]=="treeexp"} {

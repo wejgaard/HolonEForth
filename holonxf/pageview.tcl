@@ -67,19 +67,17 @@ proc TitlePane {} {
 }
 
 proc ShowTitle {id} {
-	global view color oldTitle oldVersion
+	global view color oldTitle oldVersion 
 	$view(title) configure -state normal -font title -bg $color(pagebg)
 	$view(title) delete 1.0 end
 	if {$oldVersion} {
-		set oldTitle [GetOldPage $id name]
+		set oldTitle [GetOldPage $id title]
 	} {
-		set oldTitle [GetPage $id name]
+		set oldTitle [GetPage $id title]
 	}		
 	$view(title) insert end $oldTitle  
 	$view(title) tag add title 1.0 end  
 	$view(title) configure -state disabled  
-	
-
 }
 
 proc TextTags {} {
@@ -144,7 +142,6 @@ proc TextMouseBindings  {} {
 	bind $view(text) <Alt-Button-1> {GotoWord $view(text); break} 
 	bind $view(text) <Motion> {MarkIt $view(text)}		
 	bind $view(text) <Leave> {$view(text) tag remove marking 1.0 end}
-	bind $view(text) <<Selection>> {EditorButtons; EditIt}
 }
 
 proc TextPane {} {
@@ -167,7 +164,8 @@ proc TextPane {} {
 }
 
 proc ShowText {id} {
-	global color view oldText oldVersion theType 
+	global color view oldText oldVersion theType
+	bind $view(text) <<Selection>> {EditorButtons; EditIt} 
 	if {$oldVersion} {
 		set text [GetOldPage $id text]
 	} {
@@ -260,6 +258,7 @@ proc CodePane {} {
 
 proc ShowCode {id} {
 	global view color oldCode oldVersion 
+	bind $view(code) <<Selection>> {EditorButtons; EditIt}
 	$view(code) configure -state normal
 	$view(code) delete 1.0 end
 	if {$oldVersion} {
@@ -272,7 +271,6 @@ proc ShowCode {id} {
 	set oldCode $code
 	$view(code) configure -state disabled -bg $color(pagebg)
 	if {$offset<1.0} {$view(code) yview moveto $offset} 
-	bind $view(code) <<Selection>> {EditorButtons; EditIt}
 }
 
 proc CodeReturn {} {
@@ -342,28 +340,18 @@ proc ShowTest {id} {
 	global view color oldVersion 
 	$view(test) configure -state normal
 	$view(test) delete 1.0 end
-	if {$oldVersion} {
-		set test [GetOldPage $id test]
-	} {
-		set test [GetPage $id test] 	 
-	}
+	set test [GetPage $id test] 	 
 	$view(test) insert end $test 
 	$view(test) configure -state disabled -bg bisque
-
-	if {[string length $test] > 1} {
-		.b.test configure -text Test   ; 	bind .b.test <Button-1> LoadTest
-	} {
-		.b.test configure -text Test  ;	 bind .b.test <Button-1> LoadTest
-	} 
 }
 
 proc SaveOldPage {id} {
 	global version
-	pagevars $id type text source changes old test name
+	pagevars $id type text source changes old test name title
 	set v [lindex $changes end]
 	if {$v==$version || $v==""} {return}
 	set oldpage	[mk::row append wdb.oldpages 	text $text  source $source \
-		link $old  type $type test $test name $name]
+		link $old  type $type test $test title $title ]
 	SetPage $id old [mk::cursor position oldpage]
 }
 
@@ -433,8 +421,8 @@ proc CreatePage {} {
 		-sashrelief flat -opaqueresize 1 -sashwidth 3 -bg #f3f3f3
 	$view(panes) add [TextPane]
 	$view(panes) add [CodePane]
-#	$view(panes) add [TestPane]
-	TestPane  ;# exists but invisible
+	$view(panes) add [TestPane]
+#	TestPane  ;# exists but invisible
 	# arrange title and panes in page	
 	grid [TitlePane] -row 0  -sticky news
 	grid $view(panes) -row 1  -sticky news  
@@ -448,6 +436,7 @@ proc CreatePage {} {
 proc SetPanes {} {
 	global view
 	eval $view(panes) sash place 0 $view(sash0)
+	eval $view(panes) sash place 1 $view(sash1)
 }
 
 proc Text&CodePanes {} {
@@ -493,7 +482,8 @@ proc ShowPage {id} {
 	set oldVersion 0
 	SetList $id
 	ShowTitle $id
-	ShowVersions $id; # ShowTest $id
+	ShowVersions $id; 
+	ShowTest $id
 	ShowText $id
 	ShowCode $id
  	if {[Deleted $id]} {

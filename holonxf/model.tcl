@@ -21,9 +21,9 @@ proc SetDBLayout {} {
 		 pagesize start revpage codefont codesize} 
 	mk::view layout wdb.pages \
 		{name page date:I who type next list active cursor source text \
-		 changes old compcode test mode}
+		 changes old compcode test mode title}
 	mk::view layout wdb.archive {name date:I who id:I version}
-	mk::view layout wdb.oldpages {link text source type test name}
+	mk::view layout wdb.oldpages {link text source type test name title}
 }
 
 proc CreateStructure {} {
@@ -32,13 +32,13 @@ proc CreateStructure {} {
 			textcolor #ffffff  codecolor 1 pages 2 comdel //  running 0 \
 			runcmd "../tclkit ./main.tcl"  syntax Tcl  safe 0 \
 			pagesize A4  start 0  codefont Verdana  codesize 12  revpage 1
-		set c [AppendPage type chapter  name "Revisions"  mode source]
+		set c [AppendPage type chapter name "Revisions" title "Revisions"  mode source]
     		SetBase list $c active $c
     		SetPage $c next ""
-    		set s [AppendPage type section  name "Section"]
+    		set s [AppendPage type section  name "Section" title "Section"]
     		SetPage $c list $s active $s
     		SetPage $s next $c
-    		set u [AppendPage type unit  name "0.001"]
+    		set u [AppendPage type unit  name "0.001" title "0.001"]
     		SetPage $s list $u active $u
     		SetPage $u next $s
     		SetBase revpage $u
@@ -68,7 +68,7 @@ proc OpenDB {} {
 	SetDBLayout
 	if {$newdb} {CreateStructure}
 	catch {
-		if {[GetBase running]!="" && ([clock seconds]-[GetBase running])<10} {
+		if {[GetBase running]!="" && ([clock seconds]-[GetBase running])<70} {
 			wm iconify .  ;# reduce window to icon, only message box is visible
 			tk_messageBox -type ok -message "System is already running"
 			exit
@@ -254,7 +254,7 @@ proc Deleted {id} {
 	if {[GetPage $id type]=="deleted"} {return 1} {return 0}
 }
 
-proc SavePage {id text code who newName cursor test changed} {
+proc SavePage {id text code who newName cursor test changed title} {
 	global infomode version
   	pagevars $id name page source type 
    	if {$newName != $name} {
@@ -267,9 +267,9 @@ proc SavePage {id text code who newName cursor test changed} {
     		if {$infomode=="revision"} {after 300 ShowRevision $version}
   	}
   	if {$type!="chapter"} {
-  		SetPage $id source $code who $who cursor $cursor text $text test $test
+  		SetPage $id source $code who $who cursor $cursor text $text test $test title $title
 	} {
-		SetPage $id source $code who $who cursor $cursor text $text
+		SetPage $id source $code who $who cursor $cursor text $text title $title
 	}
  	mk::file commit wdb
 }

@@ -362,7 +362,7 @@ proc MarkInfoPages {} {
 proc GetSashPositions {} {
 	global view
 	set view(sash0) [$view(panes) sash coord 0]
-#	set view(sash1) [$view(panes) sash coord 1] 
+	set view(sash1) [$view(panes) sash coord 1] 
 }
 
 proc WorkPane {} {
@@ -457,11 +457,13 @@ proc InitHolon {} {
 	BindHolon
 }
 
-proc InitSpecial {} { }
+proc InitSpecial {} {
+	StartMonitor
+}
 
 proc ShowHolon {} {
 	global view
-	set ::page [lindex [PageStack] 1]
+	set ::page [lindex [PageStack] 0]
 	ShowPage [CurrentPage]
 	ShowVisitedPages 
 	ShowRevision $::version
@@ -494,7 +496,7 @@ proc RunHolon {}  {
 	InitSpecial
   	ShowHolon
   	FindLoop
-  	wm protocol $topwin WM_DELETE_WINDOW {EndSession}
+	wm protocol $topwin WM_DELETE_WINDOW {EndSession}
 	update idletasks
 	after idle raise $topwin
 	tkwait window $topwin

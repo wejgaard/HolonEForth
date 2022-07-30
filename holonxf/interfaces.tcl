@@ -370,7 +370,7 @@ proc OpenExportFile {} {
 }
 
 proc ExportRecord {r f} {
-	puts $f "<Name> [GetPage $r name]"
+	puts $f "<Name> [GetPage $r title]"
 	set t [GetPage $r text] ; if {$t!=""} {puts $f "<Comment> $t"}
 	set s [GetPage $r source] ; if {$s!=""} {puts $f "<Source> $s"}
 #	set v [lindex [GetPage $r changes] end] ; if {$v!=""} {puts $f "<Version> $v"}
@@ -450,7 +450,9 @@ proc ImportChapter {file} {
 				<Module>  {NewChapter ; set item [Chapter]; set field text}
 			 	<Section> {PutCode ; NewSection ; set item [Section]; set field text}
 			 	<Unit>    {PutCode ; NewUnit ; set item [Unit]; set field source}
-			 	<Name>    {SetPage $item name [string range $line 7 end]}
+			 	<Name>    {set t [string range $line 7 end];
+			 				SetPage $item title $t; 
+			 				SetPage $item name [lindex $t 0]}
 			 	<Text>    {set code [string range $line 7 end]; set field text}
 			 	<Comment> {set code [string range $line 10 end]; set field text}
 				<Source>  {PutCode ; set code [string range $line 9 end]; set field source}
@@ -575,11 +577,23 @@ proc Monitor {} {
 	global LastRead errorInfo
 	if {$LastRead != [LastAccess]} {
 		set LastRead [LastAccess]
-		if {[catch DoIt result]} {
+		if {[catch ReadIt result]} {
 			puts "Error: $errorInfo"
 		}
 	}
 	after 200 Monitor
+	
+	update idletasks
+}
+
+proc ReadIt {} {
+	global view answer
+	set f [open ../holon.mon r]
+	set answer [read $f]
+	close $f
+	puts $answer
+	$view(test) configure -state normal
+	$view(test) insert 1.0 $answer
 }
 
 proc DoIt {} {

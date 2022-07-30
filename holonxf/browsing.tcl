@@ -146,9 +146,9 @@ proc InsertCDeleted {where} {
 
 proc NewChapter {} {
 	set name "Chapter"
-	set c [AppendPage name $name changes $::version date [clock seconds]]
+	set c [AppendPage name $name title $name changes $::version date [clock seconds]]
 	SetPage $c list $c
-	InsertChapter $c 1
+ 	InsertChapter $c 1
 }
 
 proc AddChapter {} {
@@ -229,7 +229,7 @@ proc InsertSDeleted {l} {
 }
 
 proc NewSection {} {
-	set s [AppendPage name "Section" changes $::version date [clock seconds]]
+	set s [AppendPage  "Section" title "Section" changes $::version date [clock seconds]]
 	SetPage $s list $s
 	InsertSection $s 1
 }
@@ -384,7 +384,7 @@ proc InsertUDeleted {l} {
 }
 
 proc NewUnit {} {
-	set u [AppendPage name "Unit" date [clock seconds] ]
+	set u [AppendPage title "Unit" date [clock seconds] ]
 	InsertUnit $u 1
 }
 
@@ -641,9 +641,9 @@ proc ShowFoundPages {rows} {
 	set count 0
 	foreach i $rows {
 		if {[string compare $findText $searchText] != 0} return
-		pagevars $i date name type
+		pagevars $i date name type    title
 		if {[Deleted $i]} {continue}
-		InsertRevisionline $name normal $i
+		InsertRevisionline    $title   normal $i
 		update
    		incr count; # if {$count>60} return
    		set lcname [string tolower $name]
@@ -672,9 +672,9 @@ proc ShowVisitedPages {} {
 #	InfoTitle "Edited:\n"
 	set count 0
 	foreach i [PageStack] {
-		pagevars $i name 
+		pagevars $i title 
 		if {[Deleted $i]} {continue}
-		InsertInfo $name normal $i
+		InsertInfo $title normal $i 
 		incr count; if ($count>$::maxPages) return
 	}
 	MarkInfoPages
@@ -689,8 +689,8 @@ proc ShowRevision {rev} {
 	set count 0
 	set rows [mk::select wdb.pages -rsort date -globnc changes *$rev*]
 	foreach i $rows {
-		pagevars $i date name type
-		InsertRevisionline $name normal $i
+		pagevars $i date title type
+		InsertRevisionline $title normal $i
    		incr count
 	}
 	if {$count == 0} {InsertInfo "(none)" normal 0}

@@ -1,0 +1,102 @@
+
+  0.001 Start 
+
+
+
+
+
+
+  0.002 
+
+
+
+
+
+
+  0.003 hdb anpassen an src 
+
+
+
+
+
+
+  0.004 
+
+
+
+
+
+
+  0.005 Revisionpage 
+
+
+
+
+
+
+  0.006 Import.hml 
+
+Import-hml
+
+
+
+
+  0.007 HolonXF 31.10.2021 
+
+
+
+
+
+
+  0.008 Korrekturen von 0.008 Files einsetzen 
+
+Vergleich TestFX mit HolonIOT Zwischenversionen
+
+
+
+
+  0.009 OldPages anpassen in name&stack 
+
+
+
+
+
+
+  0.010 Infopane nur Namen 
+
+StoreText lieferte title als name, also wurde name&stackgezeigt.
+
+
+
+
+  0.011 Unterschied title und name 
+
+Bisher ist name der Text im Titel.
+Neu:
+Der Titeltext wird als title gespeichert und das erste Wort in title wird der name.
+--
+InsertInfo soll jetzt den Titel schreiben
+und auch Unterschiede feststellen. 
+--
+Treeview braucht name, sollte wohl title sein
+
+
+
+
+  0.012 Found und Hypertext 
+
+ShowFoundPages zeigt title auch von Sections,
+zeigt also auch Sectionpages.
+
+SetDatabase stellt Delimiter=Forth ein als default (bisher Tcl). 
+Damit werden alle Zeichen ausser Space erfasst für Hypertext Suche.
+
+
+
+
+  0.013 Export&Import 
+
+
+
+
+

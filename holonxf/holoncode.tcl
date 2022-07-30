@@ -19,7 +19,7 @@ set sourcedir [string tolower $sysdir/$appname/]
 file mkdir $sourcedir
 
 if {[GetBase monitor]} {StartMonitor}
-if {[GetBase syntax]==""} {SetBase syntax Tcl}
+if {[GetBase syntax]==""} {SetBase syntax Forth}
 if {[GetBase safe]==""} {SetBase safe 1}
 if {[GetBase fontsize]==""} {if [osx] {SetBase fontsize 13} {SetBase fontsize 11}}
 SetBase comdel \\
