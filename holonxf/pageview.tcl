@@ -174,7 +174,7 @@ proc ShowText {id} {
 	$view(text) configure -state normal -font text -bg $color(pagebg)
 	$view(text) delete 1.0 end
 	set current 1.0   ;# default 
-	if {$text!={}} {
+	if {$text != {}} {
 		foreach {key value index} $text {
 			switch $key {
 				text {$view(text) insert $index $value}

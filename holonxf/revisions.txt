@@ -100,3 +100,13 @@ Damit werden alle Zeichen ausser Space erfasst für Hypertext Suche.
 
 
 
+
+  0.014 Selection Bug 
+
+Selection beendet den Edit-Zustand, die Buttons schalten um, aber wir sind noch im Editor
+und was dann kommt wird das noch gespeichert?. Ja. Weil Holon noch speichert von sich aus.
+
+Hatte den Cludge nur in der Textpane, jetzt auch in der Codepane.
+
+
+

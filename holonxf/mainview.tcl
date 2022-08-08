@@ -458,7 +458,7 @@ proc InitHolon {} {
 }
 
 proc InitSpecial {} {
-	StartMonitor
+#	StartMonitor
 }
 
 proc ShowHolon {} {
