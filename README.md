@@ -23,6 +23,8 @@ It handles source code and documentation together in a CMS and presents it in a 
 
 - Detailed description of the eForth words and functions.
 
+- Edited for easy reading and print out by Juergen Pintaske 
+
   ![eForthOverview](./Reference/efBilder/eForthOverview.png)
 
 
@@ -66,8 +68,8 @@ It handles source code and documentation together in a CMS and presents it in a 
 ### Chapter holon-eforth.fs
 
 - The chapter page contains the introduction to OverviewEforth.pdf
-- The sections are extracted from the Overview.
-- The Units of the current section.
+- The sections and numbers are extracted from the Overview.
+- The units of the current section.
 
 ![HolonEForth-Chapter](./Reference/efBilder/HolonEForth-Chapter.png)
 
