@@ -44,6 +44,21 @@ add doLit
 
 <<Selection>> event reloads the Editor in text and code. 
 Corrects 64-bit Tk behavior.
+and many small edits.
+
+
+
+
+  1.011 
+
+Section simpler clearer
+
+
+
+
+  1.012 
+
+Numbering clear.
 
 
 

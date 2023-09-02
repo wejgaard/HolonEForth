@@ -229,7 +229,7 @@ proc InsertSDeleted {l} {
 }
 
 proc NewSection {} {
-	set s [AppendPage  "Section" title "Section" changes $::version date [clock seconds]]
+	set s [AppendPage name "Section" title "Section" changes $::version date [clock seconds]]
 	SetPage $s list $s
 	InsertSection $s 1
 }
