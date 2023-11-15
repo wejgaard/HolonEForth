@@ -4,13 +4,10 @@ HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.p
 
 It handles source code and documentation together in a CMS and presents it in a book view.
 
-- Chapters create files if the name has a file extension.
-- Chapters, sections and units have a page each. 
-- Chapter and section pages collect project documentation.
-- Unit pages contain source definition and separate comments.
-	- Like a Forth system with One Word per Block.
+- The Chapter and Section pages contain the documentation.
+- The Units collect source definitions and separate comments.
 - Automatic Hypertext links throughout the system.
-
+- Chapters with a file extension contain the included source code.
 
 
 ![EForth-File](./Reference/HolonEForth.png)
