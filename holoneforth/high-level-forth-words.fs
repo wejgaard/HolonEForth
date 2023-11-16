@@ -1,17 +1,3 @@
-: doVAR ( -- a ) R> ;
-
-VARIABLE UP ( -- a)
-
-: doUSER ( -- a )
-    R> @ 	    \ retrieve user area offset
-    UP @ + ; \ add to user area base addr
-
-: doVOC ( -- ) 
-	R> CONTEXT ! ;
-
-: FORTH ( -- ) 
-	doVOC [ 0 , 0 ,
-
 SP0 ( -- a )
 
 RP0 ( -- a )
@@ -57,6 +43,20 @@ CP ( -- a )
 NP ( -- a )
 
 LAST ( -- a )
+
+: doVAR ( -- a ) R> ;
+
+VARIABLE UP ( -- a)
+
+: doUSER ( -- a )
+    R> @ 	    \ retrieve user area offset
+    UP @ + ; \ add to user area base addr
+
+: doVOC ( -- ) 
+	R> CONTEXT ! ;
+
+: FORTH ( -- ) 
+	doVOC [ 0 , 0 ,
 
 : ?DUP ( w -- w w | 0 ) 
 	DUP IF DUP THEN ;
