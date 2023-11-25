@@ -10,7 +10,7 @@ It handles source code and documentation together in a CMS and presents it in a 
 - Chapters with a file extension contain the included source code.
 
 
-![EForth-File](./Reference/HolonEForth.png)
+![EForth-File](./Reference/holontest.mov)
 
 
 
