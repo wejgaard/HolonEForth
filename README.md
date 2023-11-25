@@ -42,7 +42,7 @@ HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 
 #### HolonEForth.hdb
 
-The database of the HolonEForth CMS. 
+The database of the HolonEForth content management system.
 
 #### Folder HolonEForth
 
@@ -50,7 +50,7 @@ Collects the chapter files generated in the project.
 
 #### Folder holonxf
 
-The Holoncode source files enhanced with stack notations. (This is a different story.)
+The Holon words enhanced with stack notations.
 
 
 ---
