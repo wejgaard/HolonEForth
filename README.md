@@ -1,22 +1,30 @@
 # HolonEForth
 
-HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.pdf.
-
-It handles source code and documentation together in a CMS and presents it in a book view.
-
-- The Chapter and Section pages contain the documentation.
-- The Units collect source definitions and separate comments.
-- Automatic Hypertext links throughout the system.
-- Chapters with a file extension contain the included source code.
+HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.pdf.  It handles source code and documentation together in a content management system as a structure with a book view. 
 
 
-![EForth-File](./Reference/HolonEForth.png)
+
+<img src="./Reference/HolonEForth.png" alt="HolonEForth" style="zoom:150%;" />
+
+
+
+### Stream versus Struct
+
+Dr. Ting's great eForthOverview.pdf has been enhanced with a table of contents. It is still a stream. Look up words with searches. 
+
+HolonEForth structures the overview into chapters, sections, and units. The text areas of chapters and sections contain documentation. The units collect source definition and comment in separate panes. 
+
+Forth words in the text are links to their units. Click the text to see the definition, control-click to see the places where the word is used.
+
+
+
+-------
 
 
 
 ## Run HolonEForth
 
-HolonEForth works in Windows, macOS and Linux. Use the appropriate commandfile.
+HolonEForth works in Tcl/Tk in Windows, macOS and Linux. 
 
 #### RunWindows.bat
 
@@ -24,44 +32,23 @@ HolonEForth works in Windows, macOS and Linux. Use the appropriate commandfile.
 
 ####  RunLinux.sh
 
---
+---------------
 
-#### tclsh
-
-HolonEForth runs in Tcl/Tk. 
-
-Download and install the free Tcl/Tk via https://docs.activestate.com/activetcl/8.6/
-
-
+Download the free Tcl/Tk at https://docs.activestate.com/activetcl/8.6/
 
 ---
 
 ## Notes
 
-HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project. 
+HolonEForth is a [HolonCode](https://github.com/wejgaard/HolonCode) project.
 
-#### HolonEForth.hdb
+The folder <u>holonxf</u> contains the HolonCode source files enhanced with stack notations.
 
-The database of the HolonEForth content management system.
+The folder <u>holoneforth</u> collects the chapter files generated with a .fs extension
 
-#### Folder HolonEForth
-
-Collects the chapter files generated in the project.
-
-#### Folder holonxf
-
-The Holon words enhanced with stack notations.
+<u>holoneforth.hdb</u>  is the <u>database</u> of the HolonEForth CMS.
 
 
----
-
-## Using HolonEForth
-
-#### Hyperlinks
-
-In the texts and definitions unit names (Forth words) are hyperlinks.
-
-Click to see the unit, control-click to see where the unit is used.
 
 
 
