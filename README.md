@@ -4,7 +4,7 @@ HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.p
 
 
 
-<img src="./Reference/HolonEForth.png" alt="HolonEForth" style="zoom:150%;" />
+<img src="./Reference/TOC&HolonEForth.png" alt="HolonEForth" style="zoom:150%;" />
 
 
 
