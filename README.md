@@ -2,7 +2,7 @@
 
 HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.pdf. 
 
-It handles source code and documentation together in a content management system as a structure with a book view. 
+It handles source code and documentation together in a content management system structured like a book.
 
    
 <img src="./Reference/TOC&HolonEForth.png" alt="HolonEForth" style="zoom:150%;" />
