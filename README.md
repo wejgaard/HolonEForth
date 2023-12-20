@@ -10,9 +10,11 @@ HolonEForth combines Chen-Hanson Ting's universal eforth.fs and eForthOverview.p
 
 ### Stream versus Struct
 
-Dr. Ting's great eForthOverview.pdf has been enhanced with a table of contents. It is still a stream. Look up words with searches. 
+Dr. Ting's great eForthOverview.pdf has been enhanced with a table of contents. It is still a stream. 
+Look up words with searches. 
 
-HolonEForth structures the overview into chapters, sections, and units. The text areas of chapters and sections contain documentation. The units collect source definition and comment in separate panes. 
+HolonEForth structures the overview into chapters, sections, and units. The text areas of chapters and sections contain documentation. 
+The units collect source definition and comment in separate panes. 
 
 Forth words in the text are links to their units. Click the text to see the definition, control-click to see the places where the word is used.
 
