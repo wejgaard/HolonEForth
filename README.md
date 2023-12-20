@@ -18,9 +18,7 @@ It is still a stream. Look up words with searches.
 HolonEForth structures the overview into chapters, sections, and units. The text areas of chapters and sections contain documentation. 
 The units collect source definition and comment in separate panes. 
 
-Forth words in the text are links to their units. 
-
-Click the word to see the definition, control-click to see the places where the word is used.
+Forth words in the text are links to their units. Click the word to see the definition, control-click to see the places where the word is used.
 
 
 
