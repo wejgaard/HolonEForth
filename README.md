@@ -11,9 +11,7 @@ It handles source code and documentation together in a content management system
 
 ### Stream versus Struct
 
-Dr. Ting's eForthOverview.pdf has been enhanced with a table of contents. 
-
-It is still a stream. Look up words with searches. 
+Dr. Ting's great eForthOverview.pdf has been enhanced with a table of contents. It is still a stream. Look up words with searches. 
 
 HolonEForth structures the overview into chapters, sections, and units. The text areas of chapters and sections contain documentation. 
 The units collect source definition and comment in separate panes. 
