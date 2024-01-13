@@ -49,7 +49,7 @@ The folder <u>holonxf</u> contains the HolonCode source files enhanced with stac
 
 The folder <u>holoneforth</u> collects the chapter files generated with a .fs extension
 
-<u>holoneforth.hdb</u>  is the <u>database</u> of the HolonEForth CMS.
+<u>holoneforth.hdb</u>  is the <u>database</u> of the HolonEForth IDE.
 
 
 
